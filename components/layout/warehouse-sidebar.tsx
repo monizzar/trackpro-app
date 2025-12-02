@@ -5,11 +5,10 @@ import { usePathname } from "next/navigation"
 import {
     LayoutDashboard,
     Package,
-    ShoppingBag,
-    Users,
-    Wallet,
-    BookOpen,
+    Box,
+    FileText,
     Github,
+    BookOpen,
     LogOut,
     Settings,
     ChevronRight,
@@ -27,11 +26,10 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 const navigation = [
-    { name: "Dashboard", href: "/owner/dashboard", icon: LayoutDashboard },
-    { name: "Stok Bahan Baku", href: "/owner/stocks", icon: Package },
-    { name: "Produk", href: "/owner/products", icon: ShoppingBag },
-    { name: "Staff", href: "/owner/employees", icon: Users },
-    { name: "Gaji", href: "/owner/salaries", icon: Wallet },
+    { name: "Dashboard", href: "/warehouse/dashboard", icon: LayoutDashboard },
+    { name: "Manajemen Stok", href: "/warehouse/stock", icon: Package },
+    { name: "Alokasi Bahan", href: "/warehouse/allocation", icon: Box },
+    { name: "Laporan", href: "/warehouse/reports", icon: FileText },
 ]
 
 const externalLinks = [
@@ -47,26 +45,34 @@ const externalLinks = [
     },
 ]
 
-export function Sidebar() {
+export function WarehouseSidebar() {
     const pathname = usePathname()
 
     return (
-        <div className="flex h-screen w-64 flex-col bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl">
+        <div className="flex h-screen w-64 flex-col bg-linear-to-b from-slate-900 to-slate-800 text-white shadow-2xl">
             {/* Logo */}
             <div className="flex h-16 items-center px-6 border-b border-white/10">
-                <Link href="/owner/dashboard" className="flex items-center space-x-3 group">
-                    <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform">
+                <Link href="/warehouse/dashboard" className="flex items-center space-x-3 group">
+                    <div className="w-9 h-9 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform">
                         <span className="font-bold text-lg">T</span>
                     </div>
                     <span className="font-bold text-lg tracking-tight">TrackPro</span>
                 </Link>
             </div>
 
+            {/* Role Badge */}
+            <div className="px-6 py-3 border-b border-white/10">
+                <div className="flex items-center space-x-2 text-sm">
+                    <Package className="h-4 w-4 text-blue-400" />
+                    <span className="text-slate-300">Kepala Gudang</span>
+                </div>
+            </div>
+
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto py-6 px-3">
                 <div className="mb-6">
                     <h2 className="mb-3 px-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">
-                        Platform
+                        Menu
                     </h2>
                     <div className="space-y-1">
                         {navigation.map((item) => {
@@ -78,12 +84,12 @@ export function Sidebar() {
                                     className={cn(
                                         "group flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 relative overflow-hidden",
                                         isActive
-                                            ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white shadow-lg"
+                                            ? "bg-linear-to-r from-blue-500/20 to-purple-500/20 text-white shadow-lg"
                                             : "text-slate-300 hover:bg-white/10 hover:text-white"
                                     )}
                                 >
                                     {isActive && (
-                                        <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-blue-500 to-purple-600 rounded-r" />
+                                        <div className="absolute left-0 top-0 h-full w-1 bg-linear-to-b from-blue-500 to-purple-600 rounded-r" />
                                     )}
                                     <div className="flex items-center space-x-3">
                                         <item.icon className={cn(
@@ -138,21 +144,21 @@ export function Sidebar() {
                             variant="ghost"
                             className="w-full justify-start space-x-3 px-3 py-6 hover:bg-white/10 rounded-xl transition-all duration-200 group"
                         >
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg ring-2 ring-white/20 group-hover:ring-white/40 transition-all">
-                                O
+                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg ring-2 ring-white/20 group-hover:ring-white/40 transition-all">
+                                KG
                             </div>
                             <div className="flex-1 text-left">
-                                <div className="text-sm font-semibold text-white">Owner</div>
-                                <div className="text-xs text-slate-400">owner@trackpro.com</div>
+                                <div className="text-sm font-semibold text-white">Kepala Gudang</div>
+                                <div className="text-xs text-slate-400">warehouse@trackpro.com</div>
                             </div>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-slate-800 border-slate-700 text-white">
                         <DropdownMenuLabel>
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium">Owner</p>
+                                <p className="text-sm font-medium">Kepala Gudang</p>
                                 <p className="text-xs text-slate-400">
-                                    owner@trackpro.com
+                                    warehouse@trackpro.com
                                 </p>
                             </div>
                         </DropdownMenuLabel>

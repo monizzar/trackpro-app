@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -34,8 +35,13 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex">
+            {/* Theme Toggle - Top Right */}
+            <div className="fixed top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
+
             {/* Left Side - Login Form */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-white">
+            <div className="flex-1 flex items-center justify-center p-8 bg-background">
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
                         <Link href="/" className="inline-flex items-center justify-center space-x-2 mb-8">
@@ -43,8 +49,8 @@ export default function LoginPage() {
                                 T
                             </div>
                         </Link>
-                        <h1 className="text-3xl font-bold text-gray-900">Welcome back</h1>
-                        <p className="mt-3 text-sm text-gray-600">
+                        <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
+                        <p className="mt-3 text-sm text-muted-foreground">
                             Enter your credentials to access your account
                         </p>
                     </div>
@@ -52,7 +58,7 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                         <div className="space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                                <Label htmlFor="email" className="text-sm font-medium">
                                     Email address
                                 </Label>
                                 <Input
@@ -70,12 +76,12 @@ export default function LoginPage() {
 
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                                    <Label htmlFor="password" className="text-sm font-medium">
                                         Password
                                     </Label>
                                     <Link
                                         href="/forgot-password"
-                                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                        className="text-sm text-primary hover:text-primary/80 font-medium"
                                     >
                                         Forgot password?
                                     </Link>
@@ -95,7 +101,7 @@ export default function LoginPage() {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                                     >
                                         {showPassword ? (
                                             <EyeOff className="h-5 w-5" />
@@ -113,9 +119,9 @@ export default function LoginPage() {
                                     type="checkbox"
                                     checked={rememberMe}
                                     onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                                 />
-                                <Label htmlFor="remember-me" className="text-sm font-normal text-gray-700">
+                                <Label htmlFor="remember-me" className="text-sm font-normal">
                                     Remember me for 30 days
                                 </Label>
                             </div>
@@ -136,9 +142,9 @@ export default function LoginPage() {
                             )}
                         </Button>
 
-                        <div className="text-center text-sm text-gray-600">
+                        <div className="text-center text-sm text-muted-foreground">
                             Don&apos;t have an account?{" "}
-                            <Link href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
+                            <Link href="/register" className="text-primary hover:text-primary/80 font-medium">
                                 Sign up
                             </Link>
                         </div>
