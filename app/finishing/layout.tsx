@@ -1,10 +1,13 @@
 import { FinishingSidebar } from "@/components/layout/finishing-sidebar"
+import { requireRole } from "@/lib/auth-helpers"
 
-export default function FinishingLayout({
+export default async function FinishingLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    await requireRole(["FINISHING"])
+
     return (
         <div className="flex h-screen overflow-hidden bg-background">
             <FinishingSidebar />

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,26 +12,38 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function LoginPage() {
     const router = useRouter()
-    const [email, setEmail] = useState("")
+    const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [rememberMe, setRememberMe] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+        setError("")
 
-        // TODO: Implement actual authentication
-        // For now, simulate login
-        setTimeout(() => {
-            if (email === "owner@example.com" && password === "password") {
-                router.push("/owner/dashboard")
-            } else {
-                alert("Invalid credentials")
+        try {
+            const result = await signIn("credentials", {
+                username,
+                password,
+                redirect: false,
+            })
+
+            if (result?.error) {
+                setError(result.error)
+                setIsLoading(false)
+                return
             }
+
+            // Redirect based on role will be handled by middleware
+            router.push("/")
+            router.refresh()
+        } catch (error) {
+            setError("Terjadi kesalahan. Silakan coba lagi.")
             setIsLoading(false)
-        }, 1000)
+        }
     }
 
     return (
@@ -49,27 +62,33 @@ export default function LoginPage() {
                                 T
                             </div>
                         </Link>
-                        <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
+                        <h1 className="text-3xl font-bold text-foreground">TrackPro Login</h1>
                         <p className="mt-3 text-sm text-muted-foreground">
-                            Enter your credentials to access your account
+                            Masuk dengan username dan password Anda
                         </p>
                     </div>
+
+                    {error && (
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                         <div className="space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-sm font-medium">
-                                    Email address
+                                <Label htmlFor="username" className="text-sm font-medium">
+                                    Username
                                 </Label>
                                 <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
+                                    id="username"
+                                    name="username"
+                                    type="text"
+                                    autoComplete="username"
                                     required
-                                    placeholder="owner@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="Masukkan username"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     className="h-11 px-4"
                                 />
                             </div>

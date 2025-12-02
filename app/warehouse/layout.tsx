@@ -1,10 +1,13 @@
 import { WarehouseSidebar } from "@/components/layout/warehouse-sidebar"
+import { requireRole } from "@/lib/auth-helpers"
 
-export default function WarehouseLayout({
+export default async function WarehouseLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    await requireRole(["KEPALA_GUDANG"])
+
     return (
         <div className="flex h-screen overflow-hidden bg-background">
             <WarehouseSidebar />

@@ -1,10 +1,13 @@
 import { Sidebar } from "@/components/layout/sidebar"
+import { requireRole } from "@/lib/auth-helpers"
 
-export default function OwnerLayout({
+export default async function OwnerLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    await requireRole(["OWNER"])
+
     return (
         <div className="flex h-screen overflow-hidden bg-background">
             <Sidebar />

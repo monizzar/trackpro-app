@@ -1,10 +1,13 @@
 import { TailorSidebar } from "@/components/layout/tailor-sidebar"
+import { requireRole } from "@/lib/auth-helpers"
 
-export default function TailorLayout({
+export default async function TailorLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    await requireRole(["PENJAHIT"])
+
     return (
         <div className="flex h-screen overflow-hidden bg-background">
             <TailorSidebar />
