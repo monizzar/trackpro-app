@@ -25,6 +25,10 @@ export default function WarehouseDashboard() {
                         Monitor dan kelola stok bahan baku
                     </p>
                 </div>
+                {/* Color Test Badge */}
+                <Badge className="bg-primary text-primary-foreground">
+                    New Theme Active
+                </Badge>
             </div>
 
             {/* Stats Cards */}
