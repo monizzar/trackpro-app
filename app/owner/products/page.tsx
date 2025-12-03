@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Plus, ArrowUpDown, Copy, Package } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Plus, ArrowUpDown, Package, X, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,83 +25,235 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 type ProductStatus = "active" | "inactive"
 
+interface Material {
+    id: string
+    code: string
+    name: string
+    unit: string
+    currentStock: number
+}
+
+interface ProductMaterial {
+    materialId: string
+    quantity: number
+}
+
 interface Product {
-    id: number
+    id: string
     sku: string
     name: string
     price: number
     description: string
-    materials: string
+    materials?: Array<{
+        material: Material
+        quantity: number
+    }>
     status: ProductStatus
 }
 
 export default function ProductsPage() {
-    const [products, setProducts] = useState<Product[]>([
-        {
-            id: 1,
-            sku: "TEST-PRODUCT-001",
-            name: "Test Product",
-            price: 90000,
-            description: "Test description",
-            materials: "Test materials",
-            status: "active",
-        },
-        {
-            id: 2,
-            sku: "TEST-PRODUCT-002",
-            name: "Test Product 2",
-            price: 80000,
-            description: "Test description 2",
-            materials: "Test materials 2",
-            status: "active",
-        },
-        {
-            id: 3,
-            sku: "TEST-PRODUCT-003",
-            name: "Test Product 3",
-            price: 70000,
-            description: "Test description 3",
-            materials: "Test materials 3",
-            status: "active",
-        },
-    ])
+    const [products, setProducts] = useState<Product[]>([])
+    const [materials, setMaterials] = useState<Material[]>([])
     const [searchQuery, setSearchQuery] = useState("")
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSaving, setIsSaving] = useState(false)
     const [sortConfig, setSortConfig] = useState<{
         key: keyof Product
         direction: "asc" | "desc"
     } | null>(null)
 
+    // Edit and Delete states
+    const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+    const [deletingProduct, setDeletingProduct] = useState<Product | null>(null)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+
     // Form state
     const [formData, setFormData] = useState({
-        sku: "SKU123",
-        name: "Produk A",
-        price: 10000,
-        description: "Deskripsi produk A",
-        materials: "Bahan produk A",
+        sku: "",
+        name: "",
+        price: 0,
+        description: "",
         status: "active" as ProductStatus,
     })
+    const [selectedMaterials, setSelectedMaterials] = useState<ProductMaterial[]>([])
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        const newProduct: Product = {
-            id: products.length + 1,
-            ...formData,
+    // Fetch products
+    useEffect(() => {
+        fetchProducts()
+    }, [])
+
+    // Fetch materials when dialog opens
+    useEffect(() => {
+        if (isDialogOpen && materials.length === 0) {
+            fetchMaterials()
         }
-        setProducts([...products, newProduct])
-        setIsDialogOpen(false)
+    }, [isDialogOpen])
+
+    const fetchProducts = async () => {
+        try {
+            setIsLoading(true)
+            const response = await fetch("/api/products")
+            const data = await response.json()
+            if (data.success) {
+                setProducts(data.data)
+            }
+        } catch (error) {
+            console.error("Error fetching products:", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const fetchMaterials = async () => {
+        try {
+            const response = await fetch("/api/materials")
+            const data = await response.json()
+            if (data.success) {
+                setMaterials(data.data)
+            }
+        } catch (error) {
+            console.error("Error fetching materials:", error)
+        }
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsSaving(true)
+
+        try {
+            const url = editingProduct ? `/api/products/${editingProduct.id}` : "/api/products"
+            const method = editingProduct ? "PATCH" : "POST"
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    materials: selectedMaterials.map(m => ({
+                        materialId: m.materialId,
+                        quantity: m.quantity,
+                        unit: materials.find(mat => mat.id === m.materialId)?.unit || "PCS"
+                    })),
+                }),
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                await fetchProducts()
+                setIsDialogOpen(false)
+                resetForm()
+            } else {
+                alert(data.error || `Failed to ${editingProduct ? 'update' : 'create'} product`)
+            }
+        } catch (error) {
+            console.error(`Error ${editingProduct ? 'updating' : 'creating'} product:`, error)
+            alert(`Failed to ${editingProduct ? 'update' : 'create'} product`)
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const resetForm = () => {
         setFormData({
-            sku: "SKU123",
-            name: "Produk A",
-            price: 10000,
-            description: "Deskripsi produk A",
-            materials: "Bahan produk A",
+            sku: "",
+            name: "",
+            price: 0,
+            description: "",
             status: "active",
         })
+        setSelectedMaterials([])
+        setEditingProduct(null)
+    }
+
+    const handleEdit = (product: Product) => {
+        setEditingProduct(product)
+        setFormData({
+            sku: product.sku,
+            name: product.name,
+            price: product.price,
+            description: product.description || "",
+            status: product.status.toLowerCase() as ProductStatus,
+        })
+
+        // Load materials if available
+        if (product.materials) {
+            setSelectedMaterials(
+                product.materials.map((m) => ({
+                    materialId: m.material.id,
+                    quantity: m.quantity,
+                }))
+            )
+        }
+
+        setIsDialogOpen(true)
+    }
+
+    const handleDeleteClick = (product: Product) => {
+        setDeletingProduct(product)
+        setIsDeleteDialogOpen(true)
+    }
+
+    const handleDelete = async () => {
+        if (!deletingProduct) return
+
+        setIsDeleting(true)
+        try {
+            const response = await fetch(`/api/products/${deletingProduct.id}`, {
+                method: "DELETE",
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                await fetchProducts()
+                setIsDeleteDialogOpen(false)
+                setDeletingProduct(null)
+            } else {
+                alert(data.error || "Failed to delete product")
+            }
+        } catch (error) {
+            console.error("Error deleting product:", error)
+            alert("Failed to delete product")
+        } finally {
+            setIsDeleting(false)
+        }
+    }
+
+    const addMaterial = (materialId: string) => {
+        if (!selectedMaterials.find((m) => m.materialId === materialId)) {
+            setSelectedMaterials([...selectedMaterials, { materialId, quantity: 1 }])
+        }
+    }
+
+    const removeMaterial = (materialId: string) => {
+        setSelectedMaterials(selectedMaterials.filter((m) => m.materialId !== materialId))
+    }
+
+    const updateMaterialQuantity = (materialId: string, quantity: number) => {
+        setSelectedMaterials(
+            selectedMaterials.map((m) =>
+                m.materialId === materialId ? { ...m, quantity } : m
+            )
+        )
     }
 
     const handleSort = (key: keyof Product) => {
@@ -114,11 +266,6 @@ export default function ProductsPage() {
             direction = "desc"
         }
         setSortConfig({ key, direction })
-    }
-
-    const copySKU = (sku: string) => {
-        navigator.clipboard.writeText(sku)
-        // You could add a toast notification here
     }
 
     const filteredProducts = products.filter((product) =>
@@ -149,18 +296,21 @@ export default function ProductsPage() {
                         Manage your product catalog
                     </p>
                 </div>
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                    setIsDialogOpen(open)
+                    if (!open) resetForm()
+                }}>
                     <DialogTrigger asChild>
                         <Button>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Product
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl bg-white p-6 rounded-lg shadow-lg">
                         <DialogHeader>
-                            <DialogTitle>Create Product</DialogTitle>
+                            <DialogTitle>{editingProduct ? 'Edit Product' : 'Create Product'}</DialogTitle>
                             <DialogDescription>
-                                Add a new product to your catalog.
+                                {editingProduct ? 'Update product information' : 'Add a new product to your catalog.'}
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleSubmit} className="space-y-4">
@@ -169,6 +319,7 @@ export default function ProductsPage() {
                                     <Label htmlFor="sku">SKU</Label>
                                     <Input
                                         id="sku"
+                                        placeholder="Kode Produk"
                                         value={formData.sku}
                                         onChange={(e) =>
                                             setFormData({ ...formData, sku: e.target.value })
@@ -180,6 +331,7 @@ export default function ProductsPage() {
                                     <Label htmlFor="name">Name</Label>
                                     <Input
                                         id="name"
+                                        placeholder="Nama Produk"
                                         value={formData.name}
                                         onChange={(e) =>
                                             setFormData({ ...formData, name: e.target.value })
@@ -194,6 +346,7 @@ export default function ProductsPage() {
                                     <Input
                                         id="price"
                                         type="number"
+                                        placeholder="Harga Produk"
                                         value={formData.price}
                                         onChange={(e) =>
                                             setFormData({
@@ -225,6 +378,7 @@ export default function ProductsPage() {
                                 <Label htmlFor="description">Description</Label>
                                 <Textarea
                                     id="description"
+                                    placeholder="Deskripsi Produk"
                                     value={formData.description}
                                     onChange={(e) =>
                                         setFormData({ ...formData, description: e.target.value })
@@ -234,16 +388,82 @@ export default function ProductsPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="materials">Materials</Label>
-                                <Input
+                                <Select
                                     id="materials"
-                                    value={formData.materials}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, materials: e.target.value })
-                                    }
-                                />
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            addMaterial(e.target.value)
+                                            e.target.value = ""
+                                        }
+                                    }}
+                                >
+                                    <option value="">Pilih Bahan...</option>
+                                    {materials.map((material) => (
+                                        <option
+                                            key={material.id}
+                                            value={material.id}
+                                            disabled={selectedMaterials.some(
+                                                (m) => m.materialId === material.id
+                                            )}
+                                        >
+                                            {material.name} ({material.code}) - Stock: {material.currentStock} {material.unit}
+                                        </option>
+                                    ))}
+                                </Select>
+
+                                {/* Selected Materials */}
+                                {selectedMaterials.length > 0 && (
+                                    <div className="mt-3 space-y-2">
+                                        <Label className="text-sm text-muted-foreground">
+                                            Bahan yang Dipilih:
+                                        </Label>
+                                        {selectedMaterials.map((item) => {
+                                            const material = materials.find((m) => m.id === item.materialId)
+                                            if (!material) return null
+                                            return (
+                                                <div
+                                                    key={item.materialId}
+                                                    className="flex items-center gap-2 p-2 bg-muted rounded-md"
+                                                >
+                                                    <div className="flex-1">
+                                                        <p className="text-sm font-medium">{material.name}</p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {material.code}
+                                                        </p>
+                                                    </div>
+                                                    <Input
+                                                        type="number"
+                                                        min="0.01"
+                                                        step="0.01"
+                                                        value={item.quantity}
+                                                        onChange={(e) =>
+                                                            updateMaterialQuantity(
+                                                                item.materialId,
+                                                                parseFloat(e.target.value) || 0
+                                                            )
+                                                        }
+                                                        className="w-24"
+                                                        placeholder="Qty"
+                                                    />
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {material.unit}
+                                                    </span>
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => removeMaterial(item.materialId)}
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                )}
                             </div>
-                            <Button type="submit" className="w-full">
-                                Save Product
+                            <Button type="submit" className="w-full" disabled={isSaving}>
+                                {isSaving ? "Saving..." : editingProduct ? "Update Product" : "Create Product"}
                             </Button>
                         </form>
                     </DialogContent>
@@ -318,13 +538,23 @@ export default function ProductsPage() {
                                         <ArrowUpDown className="h-3 w-3" />
                                     </Button>
                                 </TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {sortedProducts.length === 0 ? (
+                            {isLoading ? (
                                 <TableRow>
                                     <TableCell
-                                        colSpan={4}
+                                        colSpan={5}
+                                        className="text-center text-muted-foreground h-24"
+                                    >
+                                        Loading products...
+                                    </TableCell>
+                                </TableRow>
+                            ) : sortedProducts.length === 0 ? (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={5}
                                         className="text-center text-muted-foreground h-24"
                                     >
                                         No products found
@@ -334,22 +564,27 @@ export default function ProductsPage() {
                                 sortedProducts.map((product) => (
                                     <TableRow key={product.id}>
                                         <TableCell>
-                                            <button
-                                                onClick={() => copySKU(product.sku)}
-                                                className="flex items-center gap-2 hover:text-primary transition-colors"
-                                                title="Click to copy SKU"
-                                            >
-                                                <span className="font-mono text-sm">{product.sku}</span>
-                                                <Copy className="h-3 w-3" />
-                                            </button>
-                                        </TableCell>
-                                        <TableCell>
                                             <a
                                                 href={`/owner/products/${product.id}`}
-                                                className="text-primary hover:underline font-medium"
+                                                className="font-mono text-sm text-primary hover:underline"
                                             >
-                                                {product.name}
+                                                {product.sku}
                                             </a>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div>
+                                                <a
+                                                    href={`/owner/products/${product.id}`}
+                                                    className="text-primary hover:underline font-medium"
+                                                >
+                                                    {product.name}
+                                                </a>
+                                                {product.materials && product.materials.length > 0 && (
+                                                    <div className="text-xs text-muted-foreground mt-1">
+                                                        {product.materials.length} materials
+                                                    </div>
+                                                )}
+                                            </div>
                                         </TableCell>
                                         <TableCell className="font-medium">
                                             Rp {product.price.toLocaleString('id-ID')}
@@ -358,6 +593,24 @@ export default function ProductsPage() {
                                             <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
                                                 {product.status}
                                             </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(product)}
+                                                >
+                                                    <Edit className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleDeleteClick(product)}
+                                                >
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -393,6 +646,33 @@ export default function ProductsPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will permanently delete the product <strong>{deletingProduct?.name}</strong>.
+                            {deletingProduct?.materials && deletingProduct.materials.length > 0 && (
+                                <span className="block mt-2 text-muted-foreground">
+                                    Note: This product has {deletingProduct.materials.length} associated material(s).
+                                </span>
+                            )}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }
