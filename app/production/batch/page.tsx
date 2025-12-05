@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Select } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "@/lib/toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useRouter } from "next/navigation"
 
@@ -161,7 +161,6 @@ export default function BatchManagementPage() {
     const [selectedFinisherId, setSelectedFinisherId] = useState("")
     const [assignFinisherNotes, setAssignFinisherNotes] = useState("")
     const [assigningFinisher, setAssigningFinisher] = useState(false)
-    const { toast } = useToast()
 
     // Form state
     const [selectedProductId, setSelectedProductId] = useState("")
@@ -246,11 +245,7 @@ export default function BatchManagementPage() {
 
     const handleCreateBatch = async () => {
         if (!selectedProductId || !targetQuantity) {
-            toast({
-                title: "Error",
-                description: "Produk dan target quantity harus diisi",
-                variant: "destructive",
-            })
+            toast.error("Error", "Produk dan target quantity harus diisi")
             return
         }
 
@@ -275,27 +270,16 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: "Batch produksi berhasil dibuat",
-                })
+                toast.success("Berhasil", "Batch produksi berhasil dibuat")
                 setShowCreateDialog(false)
                 resetForm()
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal membuat batch",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal membuat batch")
             }
         } catch (error) {
             console.error("Error creating batch:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat membuat batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat membuat batch")
         } finally {
             setCreating(false)
         }
@@ -320,27 +304,16 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Batch berhasil dikonfirmasi",
-                })
+                toast.success("Berhasil", result.message || "Batch berhasil dikonfirmasi")
                 setShowConfirmDialog(false)
                 setSelectedBatch(null)
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal mengkonfirmasi batch",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal mengkonfirmasi batch")
             }
         } catch (error) {
             console.error("Error confirming batch:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat mengkonfirmasi batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat mengkonfirmasi batch")
         } finally {
             setConfirming(false)
         }
@@ -358,11 +331,7 @@ export default function BatchManagementPage() {
             }
         } catch (error) {
             console.error("Error fetching batch details:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat detail batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat detail batch")
         }
     }
 
@@ -378,11 +347,7 @@ export default function BatchManagementPage() {
             }
         } catch (error) {
             console.error("Error fetching batch details:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat detail batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat detail batch")
         }
     }
 
@@ -402,21 +367,13 @@ export default function BatchManagementPage() {
             }
         } catch (error) {
             console.error("Error fetching cutters:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat daftar pemotong",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat daftar pemotong")
         }
     }
 
     const handleAssignToCutter = async () => {
         if (!assignBatch || !selectedCutterId) {
-            toast({
-                title: "Error",
-                description: "Pilih pemotong terlebih dahulu",
-                variant: "destructive",
-            })
+            toast.error("Error", "Pilih pemotong terlebih dahulu")
             return
         }
 
@@ -436,29 +393,18 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Batch berhasil di-assign ke pemotong",
-                })
+                toast.success("Berhasil", result.message || "Batch berhasil di-assign ke pemotong")
                 setShowAssignDialog(false)
                 setAssignBatch(null)
                 setSelectedCutterId("")
                 setAssignNotes("")
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal assign batch",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal assign batch")
             }
         } catch (error) {
             console.error("Error assigning batch:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat assign batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat assign batch")
         } finally {
             setAssigning(false)
         }
@@ -478,19 +424,11 @@ export default function BatchManagementPage() {
                 setCuttingTask(result.data)
                 setShowVerifyDialog(true)
             } else {
-                toast({
-                    title: "Error",
-                    description: "Gagal memuat detail cutting task",
-                    variant: "destructive",
-                })
+                toast.error("Error", "Gagal memuat detail cutting task")
             }
         } catch (error) {
             console.error("Error fetching cutting task:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat detail cutting task",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat detail cutting task")
         }
     }
 
@@ -513,29 +451,18 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Verifikasi berhasil",
-                })
+                toast.success("Berhasil", result.message || "Verifikasi berhasil")
                 setShowVerifyDialog(false)
                 setVerifyBatch(null)
                 setCuttingTask(null)
                 setVerifyNotes("")
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal verifikasi",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal verifikasi")
             }
         } catch (error) {
             console.error("Error verifying cutting:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat verifikasi",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat verifikasi")
         } finally {
             setVerifying(false)
         }
@@ -557,21 +484,13 @@ export default function BatchManagementPage() {
             }
         } catch (error) {
             console.error("Error fetching sewers:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat daftar penjahit",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat daftar penjahit")
         }
     }
 
     const handleAssignToSewer = async () => {
         if (!assignSewerBatch || !selectedSewerId) {
-            toast({
-                title: "Error",
-                description: "Pilih penjahit terlebih dahulu",
-                variant: "destructive",
-            })
+            toast.error("Error", "Pilih penjahit terlebih dahulu")
             return
         }
 
@@ -591,29 +510,18 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Batch berhasil di-assign ke penjahit",
-                })
+                toast.success("Berhasil", result.message || "Batch berhasil di-assign ke penjahit")
                 setShowAssignSewerDialog(false)
                 setAssignSewerBatch(null)
                 setSelectedSewerId("")
                 setAssignSewerNotes("")
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal assign batch",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal assign batch")
             }
         } catch (error) {
             console.error("Error assigning batch to sewer:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat assign batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat assign batch")
         } finally {
             setAssigningSewer(false)
         }
@@ -633,19 +541,11 @@ export default function BatchManagementPage() {
                 setSewingTask(result.data)
                 setShowVerifySewingDialog(true)
             } else {
-                toast({
-                    title: "Error",
-                    description: "Gagal memuat detail sewing task",
-                    variant: "destructive",
-                })
+                toast.error("Error", "Gagal memuat detail sewing task")
             }
         } catch (error) {
             console.error("Error fetching sewing task:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat detail sewing task",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat detail sewing task")
         }
     }
 
@@ -668,29 +568,18 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Verifikasi berhasil",
-                })
+                toast.success("Berhasil", result.message || "Verifikasi berhasil")
                 setShowVerifySewingDialog(false)
                 setVerifySewingBatch(null)
                 setSewingTask(null)
                 setVerifySewingNotes("")
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal verifikasi",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal verifikasi")
             }
         } catch (error) {
             console.error("Error verifying sewing:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat verifikasi",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat verifikasi")
         } finally {
             setVerifyingSewing(false)
         }
@@ -712,21 +601,13 @@ export default function BatchManagementPage() {
             }
         } catch (error) {
             console.error("Error fetching finishers:", error)
-            toast({
-                title: "Error",
-                description: "Gagal memuat daftar finisher",
-                variant: "destructive",
-            })
+            toast.error("Error", "Gagal memuat daftar finisher")
         }
     }
 
     const handleAssignToFinisher = async () => {
         if (!assignFinisherBatch || !selectedFinisherId) {
-            toast({
-                title: "Error",
-                description: "Pilih finisher terlebih dahulu",
-                variant: "destructive",
-            })
+            toast.error("Error", "Pilih finisher terlebih dahulu")
             return
         }
 
@@ -746,29 +627,18 @@ export default function BatchManagementPage() {
             const result = await response.json()
 
             if (result.success) {
-                toast({
-                    title: "Berhasil",
-                    description: result.message || "Batch berhasil di-assign ke finisher",
-                })
+                toast.success("Berhasil", result.message || "Batch berhasil di-assign ke finisher")
                 setShowAssignFinisherDialog(false)
                 setAssignFinisherBatch(null)
                 setSelectedFinisherId("")
                 setAssignFinisherNotes("")
                 fetchBatches()
             } else {
-                toast({
-                    title: "Error",
-                    description: result.error || "Gagal assign batch",
-                    variant: "destructive",
-                })
+                toast.error("Error", result.error || "Gagal assign batch")
             }
         } catch (error) {
             console.error("Error assigning batch to finisher:", error)
-            toast({
-                title: "Error",
-                description: "Terjadi kesalahan saat assign batch",
-                variant: "destructive",
-            })
+            toast.error("Error", "Terjadi kesalahan saat assign batch")
         } finally {
             setAssigningFinisher(false)
         }

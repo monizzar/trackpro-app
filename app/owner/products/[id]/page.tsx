@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, Edit, Plus, Search, ChevronsUpDown, Package, Trash2, X, Loader2, Calendar, User, FileText, CheckCircle2 } from "lucide-react";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -215,12 +216,13 @@ export default function ProductDetailPage() {
             if (data.success) {
                 await fetchProduct();
                 setIsEditDialogOpen(false);
+                toast.success("Produk Diperbarui", `${editFormData.name} berhasil diperbarui`);
             } else {
-                alert(data.error || "Failed to update product");
+                toast.error("Gagal Memperbarui", data.error || "Tidak dapat memperbarui produk");
             }
         } catch (error) {
             console.error("Error updating product:", error);
-            alert("Failed to update product");
+            toast.error("Error", "Gagal memperbarui produk");
         } finally {
             setIsSaving(false);
         }
@@ -242,14 +244,15 @@ export default function ProductDetailPage() {
             const data = await response.json();
 
             if (data.success) {
+                toast.success("Produk Dihapus", "Mengarahkan kembali...");
                 // Redirect to products list after successful deletion
                 window.location.href = "/owner/products";
             } else {
-                alert(data.error || "Failed to delete product");
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus produk");
             }
         } catch (error) {
             console.error("Error deleting product:", error);
-            alert("Failed to delete product");
+            toast.error("Error", "Gagal menghapus produk");
         } finally {
             setIsDeleting(false);
             setIsDeleteDialogOpen(false);
@@ -314,12 +317,13 @@ export default function ProductDetailPage() {
                 await fetchProduct();
                 setIsDeleteBatchDialogOpen(false);
                 setBatchToDelete(null);
+                toast.success("Batch Dihapus", "Batch produksi berhasil dihapus");
             } else {
-                alert(data.error || "Failed to delete batch");
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus batch");
             }
         } catch (error) {
             console.error("Error deleting batch:", error);
-            alert("Failed to delete batch");
+            toast.error("Error", "Gagal menghapus batch");
         } finally {
             setIsDeletingBatch(false);
         }
@@ -366,7 +370,7 @@ export default function ProductDetailPage() {
 
     const handleAddProduction = async () => {
         if (!newProduction.targetQuantity || newProduction.targetQuantity <= 0) {
-            alert("Please enter a valid target quantity");
+            toast.warning("Target Quantity Invalid", "Masukkan jumlah target yang valid");
             return;
         }
 
@@ -399,12 +403,13 @@ export default function ProductDetailPage() {
                 await fetchProduct();
                 setIsAddDialogOpen(false);
                 setNewProduction({ targetQuantity: 0, notes: "" });
+                toast.success("Batch Dibuat", `Batch produksi ${data.data.batchSku} berhasil dibuat`);
             } else {
-                alert(data.error || "Failed to create production batch");
+                toast.error("Gagal Membuat Batch", data.error || "Tidak dapat membuat batch produksi");
             }
         } catch (error) {
             console.error("Error creating production batch:", error);
-            alert("Failed to create production batch");
+            toast.error("Error", "Gagal membuat batch produksi");
         } finally {
             setIsSaving(false);
         }

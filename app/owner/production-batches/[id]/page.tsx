@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Edit, Trash2, Package, AlertCircle } from "lucide-react";
+import { toast } from "@/lib/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -112,13 +113,14 @@ export default function ProductionBatchDetailPage() {
             const data = await response.json();
 
             if (data.success) {
+                toast.success("Batch Dihapus", "Mengarahkan kembali...");
                 router.push(`/owner/products/${batch?.product.id}`);
             } else {
-                alert(data.error || "Failed to delete production batch");
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus batch produksi");
             }
         } catch (error) {
             console.error("Error deleting batch:", error);
-            alert("Failed to delete production batch");
+            toast.error("Error", "Gagal menghapus batch produksi");
         } finally {
             setIsDeleting(false);
             setIsDeleteDialogOpen(false);

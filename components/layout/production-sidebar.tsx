@@ -5,6 +5,7 @@ import {
     Package,
     ClipboardCheck,
     Factory,
+    QrCode,
 } from "lucide-react"
 import { AppSidebar, NavGroup } from "./app-sidebar"
 
@@ -21,6 +22,11 @@ const navigation: NavGroup[] = [
                 title: "Manajemen Batch",
                 href: "/production/batch",
                 icon: Package,
+            },
+            {
+                title: "QR Scanner",
+                href: "/production/qr-scanner",
+                icon: QrCode,
             },
             {
                 title: "Kontrol Kualitas",

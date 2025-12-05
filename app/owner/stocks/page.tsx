@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Package2, TrendingDown, TrendingUp, AlertTriangle, Plus, ArrowUpDown, History, Edit, Trash2, X } from "lucide-react"
+import { toast } from "@/lib/toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -241,12 +242,13 @@ export default function StocksPage() {
                     quantity: 0,
                     notes: "",
                 })
+                toast.success("Transaksi Berhasil", `${transactionForm.type === 'IN' ? 'Penambahan' : 'Pengurangan'} stok berhasil dicatat`);
             } else {
-                alert(data.error || "Failed to create transaction")
+                toast.error("Gagal Membuat Transaksi", data.error || "Tidak dapat membuat transaksi");
             }
         } catch (error) {
             console.error("Error creating transaction:", error)
-            alert("Failed to create transaction")
+            toast.error("Error", "Gagal membuat transaksi");
         } finally {
             setIsSaving(false)
         }
@@ -310,12 +312,13 @@ export default function StocksPage() {
                 await fetchMaterials()
                 setIsEditMaterialOpen(false)
                 setSelectedMaterial(null)
+                toast.success("Material Diperbarui", `${editForm.name} berhasil diperbarui`);
             } else {
-                alert(data.error || "Failed to update material")
+                toast.error("Gagal Memperbarui", data.error || "Tidak dapat memperbarui material");
             }
         } catch (error) {
             console.error("Error updating material:", error)
-            alert("Failed to update material")
+            toast.error("Error", "Gagal memperbarui material");
         } finally {
             setIsSaving(false)
         }
@@ -341,12 +344,13 @@ export default function StocksPage() {
                 await fetchMaterials()
                 setIsDeleteDialogOpen(false)
                 setSelectedMaterial(null)
+                toast.success("Material Dihapus", "Material berhasil dihapus dari sistem");
             } else {
-                alert(data.error || "Failed to delete material")
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus material");
             }
         } catch (error) {
             console.error("Error deleting material:", error)
-            alert("Failed to delete material")
+            toast.error("Error", "Gagal menghapus material");
         } finally {
             setIsDeleting(false)
         }

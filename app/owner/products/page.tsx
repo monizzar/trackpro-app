@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Search, Plus, ArrowUpDown, Package, X, Edit, Trash2 } from "lucide-react"
+import { toast } from "@/lib/toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -165,12 +166,13 @@ export default function ProductsPage() {
                 await fetchProducts()
                 setIsDialogOpen(false)
                 resetForm()
+                toast.success(editingProduct ? "Produk Diperbarui" : "Produk Dibuat", `${formData.name} berhasil ${editingProduct ? 'diperbarui' : 'ditambahkan'}`);
             } else {
-                alert(data.error || `Failed to ${editingProduct ? 'update' : 'create'} product`)
+                toast.error(editingProduct ? "Gagal Memperbarui" : "Gagal Membuat", data.error || `Tidak dapat ${editingProduct ? 'memperbarui' : 'membuat'} produk`);
             }
         } catch (error) {
             console.error(`Error ${editingProduct ? 'updating' : 'creating'} product:`, error)
-            alert(`Failed to ${editingProduct ? 'update' : 'create'} product`)
+            toast.error("Error", `Gagal ${editingProduct ? 'memperbarui' : 'membuat'} produk`);
         } finally {
             setIsSaving(false)
         }
@@ -231,12 +233,13 @@ export default function ProductsPage() {
                 await fetchProducts()
                 setIsDeleteDialogOpen(false)
                 setDeletingProduct(null)
+                toast.success("Produk Dihapus", "Produk berhasil dihapus dari sistem");
             } else {
-                alert(data.error || "Failed to delete product")
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus produk");
             }
         } catch (error) {
             console.error("Error deleting product:", error)
-            alert("Failed to delete product")
+            toast.error("Error", "Gagal menghapus produk");
         } finally {
             setIsDeleting(false)
         }

@@ -2,7 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Package, User, AlertCircle, CheckCircle2, Clock, Loader2, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Package, User, AlertCircle, CheckCircle2, Clock, Loader2, FileText, Trash2, QrCode } from "lucide-react";
+import { toast } from "@/lib/toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,14 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { QRCodeGenerator } from "@/components/qr-code-generator";
 
 interface Material {
     id: string;
@@ -114,6 +123,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
     const [loadingTimeline, setLoadingTimeline] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
 
     useEffect(() => {
         fetchBatchDetail();
@@ -164,13 +174,14 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
             const data = await response.json();
 
             if (data.success) {
+                toast.success("Batch Dihapus", "Mengarahkan kembali...");
                 router.push("/production/batch");
             } else {
-                alert(data.error || "Failed to delete batch");
+                toast.error("Gagal Menghapus", data.error || "Tidak dapat menghapus batch");
             }
         } catch (error) {
             console.error("Error deleting batch:", error);
-            alert("Failed to delete batch");
+            toast.error("Error", "Gagal menghapus batch");
         } finally {
             setIsDeleting(false);
             setIsDeleteDialogOpen(false);
@@ -296,6 +307,14 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
                 <div className="flex items-center gap-2">
                     {getStatusBadge(batch.status)}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsQRDialogOpen(true)}
+                    >
+                        <QrCode className="h-4 w-4 mr-2" />
+                        Show QR Code
+                    </Button>
                     <Button
                         variant="destructive"
                         size="sm"
@@ -663,6 +682,26 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
                     )}
                 </CardContent>
             </Card>
+
+            {/* QR Code Dialog */}
+            <Dialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>QR Code - {batch?.batchSku}</DialogTitle>
+                        <DialogDescription>
+                            Scan QR Code ini untuk tracking dan verifikasi batch produksi
+                        </DialogDescription>
+                    </DialogHeader>
+                    {batch && (
+                        <QRCodeGenerator
+                            batchSku={batch.batchSku}
+                            productName={batch.product.name}
+                            targetQuantity={batch.targetQuantity}
+                            batchId={batch.id}
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
