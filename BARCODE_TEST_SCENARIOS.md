@@ -3,6 +3,7 @@
 ## Scenario 1: User Belum Login → Scan Barcode → Auto Redirect
 
 ### Preconditions:
+
 - User **belum login** (no active session)
 - Ada batch produksi dengan ID: `abc123`
 - QR code sudah di-generate dengan URL: `https://yourdomain.com/batch/abc123`
@@ -10,18 +11,20 @@
 ### Test Steps:
 
 1. **User Scan Barcode**
+
    ```
    Action: User scan QR code menggunakan Google Lens/Camera app
    Expected: Browser terbuka dengan URL: https://yourdomain.com/batch/abc123
    ```
 
 2. **Middleware Intercept**
+
    ```
-   System Action: 
+   System Action:
    - Middleware detect user belum login (no token)
    - Middleware detect pathname = "/batch/abc123"
    - Middleware redirect ke: /login?callbackUrl=https://yourdomain.com/batch/abc123
-   
+
    Expected Result:
    - User melihat halaman login
    - Ada info box biru: "📱 Scan Barcode Terdeteksi"
@@ -29,12 +32,13 @@
    ```
 
 3. **User Login**
+
    ```
    Action:
    - User input username: "pemotong01"
    - User input password: "password123"
    - User klik "Masuk"
-   
+
    Expected:
    - Login berhasil
    - NextAuth create session
@@ -52,6 +56,7 @@
    ```
 
 ### ✅ Success Criteria:
+
 - User tidak perlu manually navigate ke batch
 - Setelah login, langsung redirect ke `/batch/abc123`
 - User bisa langsung melakukan aksi sesuai role
@@ -61,6 +66,7 @@
 ## Scenario 2: User Sudah Login → Scan Barcode → Direct Access
 
 ### Preconditions:
+
 - User **sudah login** (active session exists)
 - Role: PEMOTONG
 - Ada batch produksi dengan ID: `xyz789`
@@ -68,18 +74,20 @@
 ### Test Steps:
 
 1. **User Scan Barcode**
+
    ```
    Action: User scan QR code
    Expected: Browser terbuka dengan URL: https://yourdomain.com/batch/xyz789
    ```
 
 2. **Middleware Check**
+
    ```
    System Action:
    - Middleware detect user sudah login (token exists)
    - Middleware detect pathname = "/batch/xyz789"
    - Middleware allow access → NextResponse.next()
-   
+
    Expected Result:
    - User langsung masuk ke halaman batch
    - NO redirect ke login
@@ -98,6 +106,7 @@
    ```
 
 ### ✅ Success Criteria:
+
 - Tidak ada login screen
 - Direct access ke batch detail
 - User bisa langsung melakukan aksi
@@ -107,10 +116,11 @@
 ## Scenario 3: Different Roles → Different Actions
 
 ### Test Case 3.1: PEMOTONG
+
 ```
 Given: User logged in as PEMOTONG
 When: Scan barcode batch ABC-001
-Then: 
+Then:
   - Show "Tugas Pemotongan" card
   - If PENDING → Show "Mulai Pemotongan" button
   - If IN_PROGRESS → Show form (Potongan selesai, Reject, Waste, Notes)
@@ -118,6 +128,7 @@ Then:
 ```
 
 ### Test Case 3.2: PENJAHIT
+
 ```
 Given: User logged in as PENJAHIT
 When: Scan barcode batch ABC-001
@@ -129,6 +140,7 @@ Then:
 ```
 
 ### Test Case 3.3: FINISHING
+
 ```
 Given: User logged in as FINISHING
 When: Scan barcode batch ABC-001
@@ -140,6 +152,7 @@ Then:
 ```
 
 ### Test Case 3.4: KEPALA_PRODUKSI
+
 ```
 Given: User logged in as KEPALA_PRODUKSI
 When: Scan barcode batch ABC-001
@@ -154,6 +167,7 @@ Then:
 ## Scenario 4: Error Handling
 
 ### Test Case 4.1: Invalid Batch ID
+
 ```
 Given: User scan QR with invalid batch ID
 When: Access /batch/invalid-id-123
@@ -164,6 +178,7 @@ Then:
 ```
 
 ### Test Case 4.2: No Task Assigned
+
 ```
 Given: User logged in as PEMOTONG
       But no cutting task assigned to this user for this batch
@@ -173,6 +188,7 @@ Then:
 ```
 
 ### Test Case 4.3: Network Error
+
 ```
 Given: No internet connection
 When: Try to fetch batch detail
@@ -229,6 +245,7 @@ Then:
 ## Manual Testing Checklist
 
 ### Prerequisites:
+
 - [ ] QR code generator working
 - [ ] Middleware configured
 - [ ] NextAuth configured
@@ -236,6 +253,7 @@ Then:
 - [ ] Test batches created
 
 ### Test Execution:
+
 - [ ] Test dengan user belum login
 - [ ] Test dengan user sudah login
 - [ ] Test dengan PEMOTONG role
@@ -248,12 +266,14 @@ Then:
 - [ ] Test dengan native Camera app
 
 ### Performance:
+
 - [ ] QR scan → Login → Redirect < 3 seconds
 - [ ] Direct access (already logged in) < 1 second
 - [ ] API response time < 500ms
 
 ### Security:
-- [ ] Unauthenticated user tidak bisa akses /batch/*
+
+- [ ] Unauthenticated user tidak bisa akses /batch/\*
 - [ ] User hanya bisa update task yang assigned to them
 - [ ] Role-based access control working
 - [ ] HTTPS only in production
@@ -262,25 +282,27 @@ Then:
 
 ## Expected Results Summary
 
-| Scenario | User State | Action | Expected Result |
-|----------|-----------|--------|-----------------|
-| 1 | Not logged in | Scan barcode | Redirect to login → Auto redirect to batch after login |
-| 2 | Logged in | Scan barcode | Direct access to batch detail |
-| 3 | PEMOTONG | Access batch | Show cutting task actions |
-| 4 | PENJAHIT | Access batch | Show sewing task actions |
-| 5 | FINISHING | Access batch | Show finishing task actions |
-| 6 | KEPALA_PRODUKSI | Access batch | Show verification options |
-| 7 | Invalid batch ID | Access batch | Show error message |
-| 8 | No task assigned | Access batch | Show "no action available" message |
+| Scenario | User State       | Action       | Expected Result                                        |
+| -------- | ---------------- | ------------ | ------------------------------------------------------ |
+| 1        | Not logged in    | Scan barcode | Redirect to login → Auto redirect to batch after login |
+| 2        | Logged in        | Scan barcode | Direct access to batch detail                          |
+| 3        | PEMOTONG         | Access batch | Show cutting task actions                              |
+| 4        | PENJAHIT         | Access batch | Show sewing task actions                               |
+| 5        | FINISHING        | Access batch | Show finishing task actions                            |
+| 6        | KEPALA_PRODUKSI  | Access batch | Show verification options                              |
+| 7        | Invalid batch ID | Access batch | Show error message                                     |
+| 8        | No task assigned | Access batch | Show "no action available" message                     |
 
 ---
 
 ## Bug Tracking
 
 ### Known Issues:
+
 - [ ] None
 
 ### Fixed Issues:
+
 - [x] Middleware not redirecting to correct URL
 - [x] Login page not using callbackUrl parameter
 - [x] QR code generating JSON instead of URL
@@ -290,12 +312,14 @@ Then:
 ## Additional Notes
 
 ### Browser Compatibility:
+
 - Chrome/Edge: ✅ Tested
 - Firefox: ✅ Tested
 - Safari (iOS): ⏳ Pending
 - Samsung Internet: ⏳ Pending
 
 ### QR Scanner Apps Tested:
+
 - Google Lens: ✅ Working
 - Native Camera (Android): ⏳ Pending
 - Native Camera (iOS): ⏳ Pending
