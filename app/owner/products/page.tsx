@@ -294,11 +294,11 @@ export default function ProductsPage() {
     })
 
     return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-4 p-4 sm:p-6 md:p-8 pt-4 sm:pt-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Products</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Products</h2>
+                    <p className="text-sm sm:text-base text-muted-foreground">
                         Manage your product catalog
                     </p>
                 </div>
@@ -307,12 +307,12 @@ export default function ProductsPage() {
                     if (!open) resetForm()
                 }}>
                     <DialogTrigger asChild>
-                        <Button>
+                        <Button className="w-full sm:w-auto">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Product
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl bg-white p-6 rounded-lg shadow-lg">
+                    <DialogContent className="max-w-full sm:max-w-2xl mx-4 max-h-[90vh] overflow-y-auto  p-4 sm:p-6 rounded-lg shadow-lg">
                         <DialogHeader>
                             <DialogTitle>{editingProduct ? 'Edit Product' : 'Create Product'}</DialogTitle>
                             <DialogDescription>
@@ -478,14 +478,14 @@ export default function ProductsPage() {
 
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4">
                         <div>
                             <CardTitle>Product List</CardTitle>
                             <CardDescription>
                                 Manage your product inventory
                             </CardDescription>
                         </div>
-                        <div className="relative w-72">
+                        <div className="relative w-full">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search products..."
@@ -496,145 +496,232 @@ export default function ProductsPage() {
                         </div>
                     </div>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleSort("sku")}
-                                        className="flex items-center gap-1"
-                                    >
-                                        SKU
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </Button>
-                                </TableHead>
-                                <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleSort("name")}
-                                        className="flex items-center gap-1"
-                                    >
-                                        Name
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </Button>
-                                </TableHead>
-                                <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleSort("price")}
-                                        className="flex items-center gap-1"
-                                    >
-                                        Price
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </Button>
-                                </TableHead>
-                                <TableHead>Stock</TableHead>
-                                <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => handleSort("status")}
-                                        className="flex items-center gap-1"
-                                    >
-                                        Status
-                                        <ArrowUpDown className="h-3 w-3" />
-                                    </Button>
-                                </TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={6}
-                                        className="text-center text-muted-foreground h-24"
-                                    >
-                                        Loading products...
-                                    </TableCell>
-                                </TableRow>
-                            ) : sortedProducts.length === 0 ? (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={6}
-                                        className="text-center text-muted-foreground h-24"
-                                    >
-                                        No products found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                sortedProducts.map((product) => (
-                                    <TableRow key={product.id}>
-                                        <TableCell>
-                                            <a
-                                                href={`/owner/products/${product.id}`}
-                                                className="font-mono text-sm text-primary hover:underline"
-                                            >
-                                                {product.sku}
-                                            </a>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div>
-                                                <a
-                                                    href={`/owner/products/${product.id}`}
-                                                    className="text-primary hover:underline font-medium"
-                                                >
-                                                    {product.name}
-                                                </a>
-                                                {product.materials && product.materials.length > 0 && (
-                                                    <div className="text-xs text-muted-foreground mt-1">
-                                                        {product.materials.length} materials
+                <CardContent className="p-0 sm:p-6">
+                    {/* Mobile Card View */}
+                    <div className="block sm:hidden">
+                        {isLoading ? (
+                            <div className="flex items-center justify-center py-12">
+                                <p className="text-muted-foreground">Loading products...</p>
+                            </div>
+                        ) : sortedProducts.length === 0 ? (
+                            <div className="flex items-center justify-center py-12">
+                                <p className="text-muted-foreground">No products found</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3 p-4">
+                                {sortedProducts.map((product) => (
+                                    <Card key={product.id} className="border-2">
+                                        <CardContent className="p-4">
+                                            <div className="space-y-3">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1">
+                                                        <a
+                                                            href={`/owner/products/${product.id}`}
+                                                            className="font-medium text-primary hover:underline block"
+                                                        >
+                                                            {product.name}
+                                                        </a>
+                                                        <a
+                                                            href={`/owner/products/${product.id}`}
+                                                            className="font-mono text-xs text-muted-foreground hover:underline"
+                                                        >
+                                                            {product.sku}
+                                                        </a>
                                                     </div>
+                                                    <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
+                                                        {product.status}
+                                                    </Badge>
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    <div>
+                                                        <p className="text-xs text-muted-foreground">Price</p>
+                                                        <p className="font-medium">Rp {product.price.toLocaleString('id-ID')}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-muted-foreground">Stock</p>
+                                                        <div className="flex items-center gap-1">
+                                                            <Package className="h-3 w-3 text-muted-foreground" />
+                                                            <span className="font-medium">{product.availableStock || 0} pcs</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {product.materials && product.materials.length > 0 && (
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {product.materials.length} materials
+                                                    </p>
                                                 )}
+
+                                                <div className="flex gap-2 pt-2 border-t">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleEdit(product)}
+                                                        className="flex-1"
+                                                    >
+                                                        <Edit className="h-3 w-3 mr-1" />
+                                                        Edit
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(product)}
+                                                        className="flex-1"
+                                                    >
+                                                        <Trash2 className="h-3 w-3 mr-1 text-destructive" />
+                                                        Delete
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="font-medium">
-                                            Rp {product.price.toLocaleString('id-ID')}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <Package className="h-4 w-4 text-muted-foreground" />
-                                                <span className="font-medium">
-                                                    {product.availableStock || 0}
-                                                </span>
-                                                <span className="text-xs text-muted-foreground">pcs</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
-                                                {product.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleEdit(product)}
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleDeleteClick(product)}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </Button>
-                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Desktop Table View */}
+                    <div className="hidden sm:block">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleSort("sku")}
+                                            className="flex items-center gap-1"
+                                        >
+                                            SKU
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleSort("name")}
+                                            className="flex items-center gap-1"
+                                        >
+                                            Name
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleSort("price")}
+                                            className="flex items-center gap-1"
+                                        >
+                                            Price
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead>Stock</TableHead>
+                                    <TableHead>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleSort("status")}
+                                            className="flex items-center gap-1"
+                                        >
+                                            Status
+                                            <ArrowUpDown className="h-3 w-3" />
+                                        </Button>
+                                    </TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={6}
+                                            className="text-center text-muted-foreground h-24"
+                                        >
+                                            Loading products...
                                         </TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                ) : sortedProducts.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell
+                                            colSpan={6}
+                                            className="text-center text-muted-foreground h-24"
+                                        >
+                                            No products found
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    sortedProducts.map((product) => (
+                                        <TableRow key={product.id}>
+                                            <TableCell>
+                                                <a
+                                                    href={`/owner/products/${product.id}`}
+                                                    className="font-mono text-sm text-primary hover:underline"
+                                                >
+                                                    {product.sku}
+                                                </a>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div>
+                                                    <a
+                                                        href={`/owner/products/${product.id}`}
+                                                        className="text-primary hover:underline font-medium"
+                                                    >
+                                                        {product.name}
+                                                    </a>
+                                                    {product.materials && product.materials.length > 0 && (
+                                                        <div className="text-xs text-muted-foreground mt-1">
+                                                            {product.materials.length} materials
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-medium">
+                                                Rp {product.price.toLocaleString('id-ID')}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Package className="h-4 w-4 text-muted-foreground" />
+                                                    <span className="font-medium">
+                                                        {product.availableStock || 0}
+                                                    </span>
+                                                    <span className="text-xs text-muted-foreground">pcs</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant={product.status === 'active' ? 'default' : 'secondary'}>
+                                                    {product.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleEdit(product)}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteClick(product)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
 
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 sm:px-0 pb-4 sm:pb-0">
                         <div className="text-sm text-muted-foreground">
                             Page {currentPage} of {Math.max(1, Math.ceil(sortedProducts.length / 10))}
                         </div>
@@ -665,7 +752,7 @@ export default function ProductsPage() {
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent>
+                <AlertDialogContent >
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>

@@ -2,12 +2,22 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Package, User, AlertCircle, CheckCircle2, Clock, Loader2, FileText } from "lucide-react";
+import { ArrowLeft, Calendar, Package, User, AlertCircle, CheckCircle2, Clock, Loader2, FileText, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Material {
     id: string;
@@ -102,6 +112,8 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
     const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingTimeline, setLoadingTimeline] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         fetchBatchDetail();
@@ -137,6 +149,31 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
             console.error("Error fetching timeline:", error);
         } finally {
             setLoadingTimeline(false);
+        }
+    };
+
+    const handleDeleteBatch = async () => {
+        if (!batch) return;
+
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`/api/production-batches/${batch.id}`, {
+                method: "DELETE",
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                router.push("/production/batch");
+            } else {
+                alert(data.error || "Failed to delete batch");
+            }
+        } catch (error) {
+            console.error("Error deleting batch:", error);
+            alert("Failed to delete batch");
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteDialogOpen(false);
         }
     };
 
@@ -257,7 +294,19 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
                     <h2 className="text-3xl font-bold tracking-tight font-mono">{batch.batchSku}</h2>
                     <p className="text-muted-foreground">{batch.product.name}</p>
                 </div>
-                {getStatusBadge(batch.status)}
+                <div className="flex items-center gap-2">
+                    {getStatusBadge(batch.status)}
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                        disabled={batch.status !== 'PENDING'}
+                        title={batch.status !== 'PENDING' ? 'Only PENDING batches can be deleted' : 'Delete batch'}
+                    >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Batch
+                    </Button>
+                </div>
             </div>
 
             {/* Batch Overview */}
@@ -614,6 +663,31 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
                     )}
                 </CardContent>
             </Card>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Production Batch?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete batch <strong>{batch?.batchSku}</strong>?
+                            <span className="block mt-2 text-muted-foreground">
+                                This action cannot be undone. Only batches with PENDING status can be deleted.
+                            </span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteBatch}
+                            disabled={isDeleting}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {isDeleting ? "Deleting..." : "Delete Batch"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

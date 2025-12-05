@@ -73,22 +73,8 @@ export async function PATCH(
       },
     });
 
-    // Create timeline event for progress update
-    const completedCount = piecesCompleted || 0;
-    const rejectCount = rejectPieces || 0;
-    const details = `+${completedCount} selesai, +${rejectCount} reject. Total: ${
-      updatedTask.piecesCompleted
-    } selesai, ${updatedTask.rejectPieces} reject${
-      notes ? `. Catatan: ${notes}` : ""
-    }`;
-
-    await prisma.batchTimeline.create({
-      data: {
-        batchId: task.batchId,
-        event: "SEWING_PROGRESS",
-        details,
-      },
-    });
+    // No timeline event for progress updates to avoid timeline noise
+    // Progress is tracked through the task's piecesCompleted and rejectPieces fields
 
     return NextResponse.json(updatedTask);
   } catch (error) {

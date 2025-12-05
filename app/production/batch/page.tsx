@@ -211,9 +211,9 @@ export default function BatchManagementPage() {
             const allocations: MaterialAllocation[] = product.materials.map(pm => ({
                 materialId: pm.material.id,
                 materialName: pm.material.name,
-                requestedQty: pm.quantity * (parseInt(targetQuantity) || 1),
+                requestedQty: Number(pm.quantity) * (parseInt(targetQuantity) || 1),
                 unit: pm.material.unit,
-                availableStock: pm.material.currentStock || 0,
+                availableStock: Number(pm.material.currentStock) || 0,
                 material: pm.material,
             }))
             setMaterialAllocations(allocations)
@@ -234,9 +234,9 @@ export default function BatchManagementPage() {
                 const allocations: MaterialAllocation[] = product.materials.map(pm => ({
                     materialId: pm.material.id,
                     materialName: pm.material.name,
-                    requestedQty: pm.quantity * qty,
+                    requestedQty: Number(pm.quantity) * qty,
                     unit: pm.material.unit,
-                    availableStock: pm.material.currentStock || 0,
+                    availableStock: Number(pm.material.currentStock) || 0,
                     material: pm.material,
                 }))
                 setMaterialAllocations(allocations)
@@ -913,13 +913,13 @@ export default function BatchManagementPage() {
                                                         {allocation.materialName}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {allocation.requestedQty.toFixed(2)} {allocation.unit}
+                                                        {Number(allocation.requestedQty).toFixed(2)} {allocation.unit}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {allocation.availableStock.toFixed(2)} {allocation.unit}
+                                                        {Number(allocation.availableStock).toFixed(2)} {allocation.unit}
                                                     </TableCell>
                                                     <TableCell>
-                                                        {allocation.availableStock >= allocation.requestedQty ? (
+                                                        {Number(allocation.availableStock) >= Number(allocation.requestedQty) ? (
                                                             <Badge className="bg-green-500">Cukup</Badge>
                                                         ) : (
                                                             <Badge variant="destructive">Kurang</Badge>
@@ -966,7 +966,7 @@ export default function BatchManagementPage() {
 
             {/* Confirm Batch Dialog */}
             <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Konfirmasi Batch Produksi</DialogTitle>
                         <DialogDescription>
@@ -1114,7 +1114,7 @@ export default function BatchManagementPage() {
 
             {/* Assign to Cutter Dialog */}
             <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-                <DialogContent className="max-w-2xl bg-white">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Assign ke Pemotong</DialogTitle>
                         <DialogDescription>
@@ -1207,7 +1207,7 @@ export default function BatchManagementPage() {
 
             {/* Verify Cutting Dialog */}
             <Dialog open={showVerifyDialog} onOpenChange={setShowVerifyDialog}>
-                <DialogContent className="max-w-2xl bg-white">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Verifikasi Potongan</DialogTitle>
                         <DialogDescription>
@@ -1364,7 +1364,7 @@ export default function BatchManagementPage() {
 
             {/* Assign to Sewer Dialog */}
             <Dialog open={showAssignSewerDialog} onOpenChange={setShowAssignSewerDialog}>
-                <DialogContent className="max-w-2xl bg-white">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Assign ke Penjahit</DialogTitle>
                         <DialogDescription>
@@ -1457,7 +1457,7 @@ export default function BatchManagementPage() {
 
             {/* Verify Sewing Dialog */}
             <Dialog open={showVerifySewingDialog} onOpenChange={setShowVerifySewingDialog}>
-                <DialogContent className="max-w-2xl bg-white">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Verifikasi Jahitan</DialogTitle>
                         <DialogDescription>
@@ -1612,7 +1612,7 @@ export default function BatchManagementPage() {
 
             {/* Assign to Finisher Dialog */}
             <Dialog open={showAssignFinisherDialog} onOpenChange={setShowAssignFinisherDialog}>
-                <DialogContent className="max-w-2xl bg-white">
+                <DialogContent className="max-w-2xl">
                     <DialogHeader>
                         <DialogTitle>Assign ke Finisher</DialogTitle>
                         <DialogDescription>
@@ -1705,7 +1705,7 @@ export default function BatchManagementPage() {
 
             {/* Detail Batch Dialog */}
             <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white">
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Detail Batch Produksi</DialogTitle>
                         <DialogDescription>

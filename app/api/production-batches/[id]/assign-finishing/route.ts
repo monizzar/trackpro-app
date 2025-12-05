@@ -12,7 +12,7 @@ const prisma = new PrismaClient({ adapter });
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,7 +32,7 @@ export async function POST(
       );
     }
 
-    const batchId = params.id;
+    const { id: batchId } = await params;
     const body = await request.json();
     const { assignedToId, piecesReceived, notes } = body;
 

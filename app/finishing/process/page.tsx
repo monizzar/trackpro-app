@@ -304,11 +304,11 @@ export default function FinishingProcessPage() {
     }
 
     return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
+        <div className="flex-1 space-y-4 p-4 sm:p-6 md:p-8 pt-4 sm:pt-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Proses Finishing</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Proses Finishing</h2>
+                    <p className="text-sm sm:text-base text-muted-foreground">
                         Quality check dan finishing produk
                     </p>
                 </div>
@@ -365,10 +365,10 @@ export default function FinishingProcessPage() {
                         <Progress value={(currentBatch.completed / currentBatch.received) * 100} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <div className="space-y-1">
-                            <p className="text-sm text-muted-foreground">Pieces Diterima</p>
-                            <p className="text-2xl font-bold">{currentBatch.received} pcs</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Pieces Diterima</p>
+                            <p className="text-xl sm:text-2xl font-bold">{currentBatch.received} pcs</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-sm text-muted-foreground">Target Asli</p>
@@ -376,10 +376,10 @@ export default function FinishingProcessPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                            <p className="text-sm text-muted-foreground">Completed</p>
-                            <p className="text-xl font-bold text-green-600 dark:text-green-400">{currentBatch.completed}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
+                            <p className="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400">{currentBatch.completed}</p>
                         </div>
                         <div className="p-3 bg-red-50 dark:bg-red-950 rounded-lg">
                             <p className="text-sm text-muted-foreground">Reject</p>

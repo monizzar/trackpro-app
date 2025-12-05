@@ -58,7 +58,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-md space-y-8">
                     <div className="text-center">
                         <Link href="/" className="inline-flex items-center justify-center space-x-2 mb-8">
-                            <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-primary-foreground font-bold text-xl shadow-lg">
                                 T
                             </div>
                         </Link>
@@ -69,7 +69,7 @@ export default function LoginPage() {
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg text-sm">
+                        <div className="bg-destructive/10 border border-destructive/50 text-destructive px-4 py-3 rounded-lg text-sm">
                             {error}
                         </div>
                     )}
@@ -148,7 +148,7 @@ export default function LoginPage() {
 
                         <Button
                             type="submit"
-                            className="w-full h-11 bg-linear-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                            className="w-full h-11 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                             disabled={isLoading}
                         >
                             {isLoading ? (
@@ -172,39 +172,39 @@ export default function LoginPage() {
             </div>
 
             {/* Right Side - Branding */}
-            <div className="hidden lg:flex flex-1 bg-linear-to-br from-blue-600 via-purple-600 to-purple-800 p-12 items-center justify-center relative overflow-hidden">
+            <div className="hidden lg:flex flex-1 bg-linear-to-br from-primary via-secondary to-accent p-12 items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>
                 <div className="relative z-10 text-white max-w-lg">
                     <h2 className="text-4xl font-bold mb-6">
                         Track. Manage. Succeed.
                     </h2>
-                    <p className="text-lg text-blue-100 mb-8">
+                    <p className="text-lg text-primary-foreground/80 mb-8">
                         TrackPro helps you manage your production workflow efficiently with real-time tracking and comprehensive reporting.
                     </p>
                     <div className="space-y-4">
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             </div>
-                            <span className="text-blue-100">Production batch tracking</span>
+                            <span className="text-primary-foreground/90">Production batch tracking</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             </div>
-                            <span className="text-blue-100">Material inventory management</span>
+                            <span className="text-primary-foreground/90">Material inventory management</span>
                         </div>
                         <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             </div>
-                            <span className="text-blue-100">Quality control & reporting</span>
+                            <span className="text-primary-foreground/90">Quality control & reporting</span>
                         </div>
                     </div>
                 </div>

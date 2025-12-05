@@ -1,104 +1,329 @@
 @import "tailwindcss";
+/* @import "tw-animate-css"; */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Sidebar Colors */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  /* Chart Colors */
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+
+  /* Base Theme Colors */
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Status Colors */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
 
 :root {
-  /* Light Mode - Base: #f0edee */
-  --background: 330 10% 93%;
-  --foreground: 260 14% 5%;
-  --card: 330 10% 96%;
-  --card-foreground: 260 14% 5%;
-  --popover: 330 10% 96%;
-  --popover-foreground: 260 14% 5%;
-  /* Primary: #2c666e */
-  --primary: 188 44% 30%;
-  --primary-foreground: 330 10% 98%;
-  /* Secondary: #07393c */
-  --secondary: 183 78% 13%;
-  --secondary-foreground: 330 10% 98%;
-  --muted: 330 10% 88%;
-  --muted-foreground: 188 20% 40%;
-  /* Accent: #90ddf0 */
-  --accent: 192 73% 75%;
-  --accent-foreground: 260 14% 5%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 330 10% 98%;
-  --border: 330 10% 85%;
-  --input: 330 10% 85%;
-  --ring: 188 44% 30%;
-  --radius: 0.5rem;
-  --success: 142.1 76.2% 36.3%;
-  --warning: 38 92% 50%;
-  --info: 192 73% 75%;
+  --radius: 0.625rem;
+
+  /* Base Colors - Light Mode */
+  --background: oklch(0.99 0 0); /* Putih lembut */
+  --foreground: oklch(0.25 0.02 180); /* Teks gelap dengan sedikit hint hijau */
+
+  /* Card & Popover */
+  --card: oklch(1 0 0); /* Putih bersih untuk card */
+  --card-foreground: oklch(0.25 0.02 180);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.25 0.02 180);
+
+  /* Primary - Warna Utama #005043 (Hijau Teal) */
+  --primary: oklch(0.32 0.09 180); /* #005043 converted to OKLCH */
+  --primary-foreground: oklch(0.99 0 0); /* Putih untuk teks di atas primary */
+
+  /* Secondary - Hijau lebih terang untuk variasi */
+  --secondary: oklch(0.92 0.02 180); /* Hijau sangat muda */
+  --secondary-foreground: oklch(0.32 0.09 180); /* Primary color untuk teks */
+
+  /* Muted - Abu-abu dengan hint hijau */
+  --muted: oklch(0.94 0.01 180);
+  --muted-foreground: oklch(0.5 0.02 180);
+
+  /* Accent - Teal lebih cerah untuk highlight */
+  --accent: oklch(0.88 0.05 180); /* Teal muda untuk accent */
+  --accent-foreground: oklch(0.25 0.09 180); /* Teks gelap */
+
+  /* Destructive - Merah untuk error/delete */
+  --destructive: oklch(0.577 0.245 27.325); /* Merah */
+  --destructive-foreground: oklch(0.99 0 0);
+
+  /* Success - Hijau untuk success state */
+  --success: oklch(0.65 0.15 145); /* Hijau cerah */
+  --success-foreground: oklch(0.99 0 0);
+
+  /* Warning - Kuning/Amber untuk warning */
+  --warning: oklch(0.75 0.15 85); /* Kuning amber */
+  --warning-foreground: oklch(0.25 0.02 180);
+
+  /* Info - Biru untuk informasi */
+  --info: oklch(0.6 0.15 230); /* Biru */
+  --info-foreground: oklch(0.99 0 0);
+
+  /* Border & Input */
+  --border: oklch(0.88 0.01 180); /* Border dengan hint hijau */
+  --input: oklch(0.9 0.01 180); /* Input background */
+  --ring: oklch(0.32 0.09 180); /* Focus ring menggunakan primary */
+
+  /* Charts - Palette selaras dengan hijau teal */
+  --chart-1: oklch(0.32 0.09 180); /* Primary - Teal gelap */
+  --chart-2: oklch(0.55 0.12 180); /* Teal medium */
+  --chart-3: oklch(0.7 0.1 160); /* Hijau cerah */
+  --chart-4: oklch(0.5 0.15 200); /* Biru teal */
+  --chart-5: oklch(0.65 0.08 140); /* Hijau mint */
+
+  /* Sidebar - Menggunakan primary color */
+  --sidebar: oklch(0.32 0.09 180); /* Primary color untuk sidebar */
+  --sidebar-foreground: oklch(0.99 0 0); /* Putih untuk teks */
+  --sidebar-primary: oklch(
+    0.42 0.1 180
+  ); /* Primary lebih terang untuk highlight */
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(
+    0.38 0.09 180
+  ); /* Sedikit lebih terang dari sidebar */
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-border: oklch(0.28 0.08 180); /* Border lebih gelap */
+  --sidebar-ring: oklch(0.5 0.12 180); /* Focus ring untuk sidebar */
 }
 
 .dark {
-  /* Dark Mode - Base: #0a090c */
-  --background: 260 14% 5%;
-  --foreground: 330 10% 93%;
-  --card: 260 14% 8%;
-  --card-foreground: 330 10% 93%;
-  --popover: 260 14% 8%;
-  --popover-foreground: 330 10% 93%;
-  /* Primary: #2c666e */
-  --primary: 188 44% 30%;
-  --primary-foreground: 330 10% 98%;
-  /* Secondary: #07393c */
-  --secondary: 183 78% 13%;
-  --secondary-foreground: 330 10% 98%;
-  --muted: 260 14% 12%;
-  --muted-foreground: 192 30% 65%;
-  /* Accent: #90ddf0 */
-  --accent: 192 73% 75%;
-  --accent-foreground: 260 14% 5%;
-  --destructive: 0 62.8% 50%;
-  --destructive-foreground: 330 10% 98%;
-  --border: 260 14% 15%;
-  --input: 260 14% 15%;
-  --ring: 192 73% 75%;
-  --success: 142.1 70.6% 45.3%;
-  --warning: 38 92% 50%;
-  --info: 192 73% 75%;
+  /* Base Colors - Dark Mode */
+  --background: oklch(0.15 0.01 180); /* Gelap dengan hint hijau */
+  --foreground: oklch(0.95 0 0); /* Putih untuk teks */
+
+  /* Card & Popover */
+  --card: oklch(0.2 0.02 180); /* Card lebih terang dari background */
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.2 0.02 180);
+  --popover-foreground: oklch(0.95 0 0);
+
+  /* Primary - Lebih cerah di dark mode untuk kontras */
+  --primary: oklch(0.55 0.12 180); /* Teal lebih cerah */
+  --primary-foreground: oklch(0.15 0.01 180); /* Gelap untuk kontras */
+
+  /* Secondary */
+  --secondary: oklch(0.25 0.03 180); /* Lebih terang dari background */
+  --secondary-foreground: oklch(0.95 0 0);
+
+  /* Muted */
+  --muted: oklch(0.25 0.02 180);
+  --muted-foreground: oklch(0.65 0.02 180);
+
+  /* Accent */
+  --accent: oklch(0.35 0.06 180); /* Teal gelap untuk accent */
+  --accent-foreground: oklch(0.95 0 0);
+
+  /* Destructive */
+  --destructive: oklch(0.6 0.22 27); /* Merah lebih cerah di dark */
+  --destructive-foreground: oklch(0.95 0 0);
+
+  /* Success */
+  --success: oklch(0.55 0.15 145); /* Hijau untuk dark mode */
+  --success-foreground: oklch(0.95 0 0);
+
+  /* Warning */
+  --warning: oklch(0.7 0.15 85); /* Kuning amber */
+  --warning-foreground: oklch(0.15 0.01 180);
+
+  /* Info */
+  --info: oklch(0.55 0.15 230); /* Biru */
+  --info-foreground: oklch(0.95 0 0);
+
+  /* Border & Input */
+  --border: oklch(0.3 0.03 180); /* Border dengan hint hijau */
+  --input: oklch(0.25 0.03 180);
+  --ring: oklch(0.55 0.12 180); /* Primary color untuk focus */
+
+  /* Charts - Dark Mode */
+  --chart-1: oklch(0.55 0.12 180); /* Teal cerah */
+  --chart-2: oklch(0.65 0.1 160); /* Hijau */
+  --chart-3: oklch(0.7 0.15 145); /* Hijau mint */
+  --chart-4: oklch(0.6 0.15 200); /* Biru teal */
+  --chart-5: oklch(0.75 0.1 140); /* Hijau lime */
+
+  /* Sidebar - Dark Mode */
+  --sidebar: oklch(0.18 0.02 180); /* Sedikit lebih terang dari background */
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.55 0.12 180); /* Primary cerah untuk highlight */
+  --sidebar-primary-foreground: oklch(0.15 0.01 180);
+  --sidebar-accent: oklch(0.25 0.03 180);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.3 0.03 180);
+  --sidebar-ring: oklch(0.55 0.12 180);
 }
 
-* {
-  border-color: hsl(var(--border));
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-feature-settings: "rlig" 1, "calt" 1;
+/* ============================================
+   SATU DATA COLOR PALETTE SYSTEM
+   ============================================
+   
+   Primary Color: #005043 (Teal Dark)
+   - oklch(0.32 0.09 180) in light mode
+   - oklch(0.55 0.12 180) in dark mode
+   
+   Color Palette Usage:
+   
+   1. PRIMARY - Main brand color (#005043)
+      - Buttons, links, active states
+      - bg-primary, text-primary, border-primary
+   
+   2. SECONDARY - Light teal backgrounds
+      - Subtle highlights, secondary actions
+      - bg-secondary, text-secondary-foreground
+   
+   3. ACCENT - Interactive elements
+      - Hover states, focus indicators
+      - bg-accent, text-accent-foreground
+   
+   4. MUTED - Disabled/subtle content
+      - Placeholder text, disabled buttons
+      - bg-muted, text-muted-foreground
+   
+   5. SUCCESS - Positive feedback
+      - Success messages, completed states
+      - bg-success, text-success-foreground
+   
+   6. WARNING - Caution states
+      - Warnings, pending actions
+      - bg-warning, text-warning-foreground
+   
+   7. DESTRUCTIVE - Negative actions
+      - Delete buttons, error messages
+      - bg-destructive, text-destructive-foreground
+   
+   8. INFO - Informational content
+      - Info messages, tooltips
+      - bg-info, text-info-foreground
+   
+   Usage Examples:
+   <Button className="bg-primary text-primary-foreground">Primary</Button>
+   <Badge className="bg-success text-success-foreground">Success</Badge>
+   <Alert className="border-warning bg-warning/10">Warning message</Alert>
+   
+   ============================================ */
+
+/* Custom Utility Classes */
+@layer utilities {
+  /* Status Badge Colors */
+  .badge-success {
+    @apply bg-success text-success-foreground;
+  }
+
+  .badge-warning {
+    @apply bg-warning text-warning-foreground;
+  }
+
+  .badge-info {
+    @apply bg-info text-info-foreground;
+  }
+
+  .badge-error {
+    @apply bg-destructive text-destructive-foreground;
+  }
+
+  /* Alert Variants */
+  .alert-success {
+    @apply border-success bg-success/10 text-success;
+  }
+
+  .alert-warning {
+    @apply border-warning bg-warning/10 text-warning;
+  }
+
+  .alert-info {
+    @apply border-info bg-info/10 text-info;
+  }
+
+  .alert-error {
+    @apply border-destructive bg-destructive/10 text-destructive;
+  }
+
+  /* Gradient Backgrounds with Primary */
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      oklch(0.32 0.09 180) 0%,
+      oklch(0.42 0.1 180) 100%
+    );
+  }
+
+  .gradient-primary-to-secondary {
+    background: linear-gradient(
+      135deg,
+      oklch(0.32 0.09 180) 0%,
+      oklch(0.55 0.12 180) 100%
+    );
+  }
+
+  /* Hover Effects */
+  .hover-primary {
+    @apply hover:bg-primary/10 hover:text-primary transition-colors;
+  }
+
+  .hover-lift {
+    @apply hover:-translate-y-1 hover:shadow-lg transition-all duration-300;
+  }
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
-  border-radius: var(--radius);
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: var(--radius);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
-
-/* Animations */
-@keyframes slideIn {
+/* Custom Animations */
+@keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -106,63 +331,41 @@ html {
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 0.3;
   }
-  to {
-    opacity: 1;
+  50% {
+    opacity: 0.5;
   }
 }
 
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out forwards;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.2s ease-out;
+.delay-300 {
+  animation-delay: 300ms;
 }
 
-/* Modern glassmorphism effect */
-.glass-effect {
-  background: hsl(var(--card) / 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid hsl(var(--border) / 0.5);
+.delay-700 {
+  animation-delay: 700ms;
 }
 
-/* Custom color utilities from palette */
-.bg-brand-dark {
-  background-color: #0a090c;
+.delay-1000 {
+  animation-delay: 1000ms;
 }
 
-.bg-brand-light {
-  background-color: #f0edee;
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
-.bg-brand-primary-dark {
-  background-color: #07393c;
-}
-
-.bg-brand-primary {
-  background-color: #2c666e;
-}
-
-.bg-brand-accent {
-  background-color: #90ddf0;
-}
-
-.text-brand-dark {
-  color: #0a090c;
-}
-
-.text-brand-light {
-  color: #f0edee;
-}
-
-.text-brand-accent {
-  color: #90ddf0;
-}
-
-.border-brand-accent {
-  border-color: #90ddf0;
+/* Custom Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

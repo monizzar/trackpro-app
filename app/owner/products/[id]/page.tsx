@@ -108,6 +108,11 @@ export default function ProductDetailPage() {
     const [batchDetail, setBatchDetail] = useState<ProductionBatch | null>(null);
     const [loadingBatchDetail, setLoadingBatchDetail] = useState(false);
 
+    // Delete batch states
+    const [isDeleteBatchDialogOpen, setIsDeleteBatchDialogOpen] = useState(false);
+    const [batchToDelete, setBatchToDelete] = useState<ProductionBatch | null>(null);
+    const [isDeletingBatch, setIsDeletingBatch] = useState(false);
+
     // Edit and Delete states
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -269,6 +274,7 @@ export default function ProductDetailPage() {
         );
     };
 
+
     const handleBatchClick = async (batchId: string) => {
         setSelectedBatchId(batchId);
         setIsBatchDetailOpen(true);
@@ -285,6 +291,37 @@ export default function ProductDetailPage() {
             console.error("Error fetching batch detail:", error);
         } finally {
             setLoadingBatchDetail(false);
+        }
+    };
+
+    const handleDeleteBatchClick = (batch: ProductionBatch) => {
+        setBatchToDelete(batch);
+        setIsDeleteBatchDialogOpen(true);
+    };
+
+    const handleDeleteBatch = async () => {
+        if (!batchToDelete) return;
+
+        setIsDeletingBatch(true);
+        try {
+            const response = await fetch(`/api/production-batches/${batchToDelete.id}`, {
+                method: "DELETE",
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await fetchProduct();
+                setIsDeleteBatchDialogOpen(false);
+                setBatchToDelete(null);
+            } else {
+                alert(data.error || "Failed to delete batch");
+            }
+        } catch (error) {
+            console.error("Error deleting batch:", error);
+            alert("Failed to delete batch");
+        } finally {
+            setIsDeletingBatch(false);
         }
     };
 
@@ -458,7 +495,7 @@ export default function ProductDetailPage() {
                                         Add Production
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-white">
+                                <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>Add New Production Batch</DialogTitle>
                                         <DialogDescription>
@@ -576,12 +613,13 @@ export default function ProductDetailPage() {
                                             </div>
                                         </TableHead>
                                         <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {sortedProductions.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                                            <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                                                 <div className="flex flex-col items-center gap-2">
                                                     <Package className="h-8 w-8 text-muted-foreground/50" />
                                                     <p>Belum ada batch produksi</p>
@@ -627,6 +665,20 @@ export default function ProductDetailPage() {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>{getStatusBadge(batch.status)}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteBatchClick(batch);
+                                                        }}
+                                                        disabled={!['PENDING', 'MATERIAL_REQUESTED', 'MATERIAL_ALLOCATED'].includes(batch.status)}
+                                                        title={!['PENDING', 'MATERIAL_REQUESTED', 'MATERIAL_ALLOCATED'].includes(batch.status) ? 'Only batches not yet in production can be deleted' : 'Delete batch'}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </TableCell>
                                             </TableRow>
                                         ))
                                     )}
@@ -734,7 +786,7 @@ export default function ProductDetailPage() {
 
             {/* Edit Product Dialog */}
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="max-w-2xl bg-white p-6 rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl p-6 rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Edit Product</DialogTitle>
                         <DialogDescription>
@@ -935,9 +987,59 @@ export default function ProductDetailPage() {
                 </AlertDialogContent>
             </AlertDialog>
 
+            {/* Delete Batch Confirmation Dialog */}
+            <AlertDialog open={isDeleteBatchDialogOpen} onOpenChange={setIsDeleteBatchDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Production Batch?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete batch <strong>{batchToDelete?.batchSku}</strong>?
+                            <span className="block mt-2 text-muted-foreground">
+                                This action cannot be undone. Only batches with PENDING status can be deleted.
+                            </span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeletingBatch}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteBatch}
+                            disabled={isDeletingBatch}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {isDeletingBatch ? "Deleting..." : "Delete Batch"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete Batch Confirmation Dialog */}
+            <AlertDialog open={isDeleteBatchDialogOpen} onOpenChange={setIsDeleteBatchDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Production Batch?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete batch <strong>{batchToDelete?.batchSku}</strong>?
+                            <span className="block mt-2 text-muted-foreground">
+                                This action cannot be undone. Only batches that haven't started production can be deleted.
+                            </span>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeletingBatch}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteBatch}
+                            disabled={isDeletingBatch}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            {isDeletingBatch ? "Deleting..." : "Delete Batch"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             {/* Batch Detail Modal */}
             <Dialog open={isBatchDetailOpen} onOpenChange={setIsBatchDetailOpen}>
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Batch Production Detail</DialogTitle>
                         <DialogDescription>

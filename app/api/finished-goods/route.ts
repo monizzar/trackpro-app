@@ -30,9 +30,9 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type"); // 'FINISHED' or 'REJECT'
+    const typeParam = searchParams.get("type"); // 'FINISHED' or 'REJECT'
 
-    const where = type ? { type } : {};
+    const where = typeParam ? { type: typeParam as "FINISHED" | "REJECT" } : {};
 
     const finishedGoods = await prisma.finishedGood.findMany({
       where,
