@@ -15,6 +15,9 @@ COPY prisma ./prisma
 # Install dependencies (this will also run postinstall which generates Prisma)
 RUN pnpm install --frozen-lockfile
 
+# Explicitly generate Prisma client to ensure types are available
+RUN pnpm prisma generate
+
 # Copy source code
 COPY . .
 
