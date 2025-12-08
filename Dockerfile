@@ -43,7 +43,7 @@ COPY --from=builder /app/. next/static . /.next/static
 COPY --from=builder /app/prisma ./prisma
 
 # Copy node_modules for Prisma
-COPY --from=builder /app/node_modules/. prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 EXPOSE 3000
