@@ -428,7 +428,7 @@ export default function CuttingProcessPage() {
                     <div className="grid grid-cols-2 gap-3 sm:gap-4">
                         <div className="space-y-1">
                             <p className="text-xs sm:text-sm text-muted-foreground">Material Diterima</p>
-                            <p className="text-xl sm:text-2xl font-bold">{currentBatch.materialReceived} m</p>
+                            <p className="text-xl sm:text-2xl font-bold">{currentBatch.materialReceived} ROLL</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-sm text-muted-foreground">Target</p>

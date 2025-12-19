@@ -296,7 +296,7 @@ export default function BatchDetailPage({ params }: { params: Promise<{ id: stri
     return (
         <div className="flex-1 space-y-6 p-8 pt-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="space-y-1">
                     <Button variant="ghost" onClick={() => router.back()} className="mb-2">
                         <ArrowLeft className="h-4 w-4 mr-2" />

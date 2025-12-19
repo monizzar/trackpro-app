@@ -206,11 +206,11 @@ export default function BatchManagementPage() {
         const product = products.find(p => p.id === productId)
 
         if (product && product.materials && product.materials.length > 0) {
-            // Auto-populate material allocations based on product recipe
+            // Setup material list untuk input manual
             const allocations: MaterialAllocation[] = product.materials.map(pm => ({
                 materialId: pm.material.id,
                 materialName: pm.material.name,
-                requestedQty: Number(pm.quantity) * (parseInt(targetQuantity) || 1),
+                requestedQty: 0, // Default 0, akan diinput manual
                 unit: pm.material.unit,
                 availableStock: Number(pm.material.currentStock) || 0,
                 material: pm.material,
@@ -223,24 +223,18 @@ export default function BatchManagementPage() {
 
     const handleTargetQuantityChange = (value: string) => {
         setTargetQuantity(value)
+        // Material allocations tidak auto-recalculate
+        // Quantity material diinput manual oleh kepala produksi
+    }
 
-        // Recalculate material allocations based on new quantity
-        if (selectedProductId && value) {
-            const product = products.find(p => p.id === selectedProductId)
-            const qty = parseInt(value) || 1
-
-            if (product && product.materials) {
-                const allocations: MaterialAllocation[] = product.materials.map(pm => ({
-                    materialId: pm.material.id,
-                    materialName: pm.material.name,
-                    requestedQty: Number(pm.quantity) * qty,
-                    unit: pm.material.unit,
-                    availableStock: Number(pm.material.currentStock) || 0,
-                    material: pm.material,
-                }))
-                setMaterialAllocations(allocations)
-            }
-        }
+    const handleMaterialQuantityChange = (materialId: string, quantity: string) => {
+        setMaterialAllocations(prev =>
+            prev.map(ma =>
+                ma.materialId === materialId
+                    ? { ...ma, requestedQty: parseFloat(quantity) || 0 }
+                    : ma
+            )
+        )
     }
 
     const handleCreateBatch = async () => {
@@ -352,9 +346,25 @@ export default function BatchManagementPage() {
     }
 
     const openAssignDialog = async (batch: Batch) => {
-        setAssignBatch(batch)
         setSelectedCutterId("")
         setAssignNotes("")
+
+        // Fetch full batch details including material allocations
+        try {
+            const batchResponse = await fetch(`/api/production-batches/${batch.id}`)
+            const batchResult = await batchResponse.json()
+
+            if (batchResult.success) {
+                setAssignBatch(batchResult.data)
+            } else {
+                toast.error("Error", "Gagal memuat detail batch")
+                return
+            }
+        } catch (error) {
+            console.error("Error fetching batch details:", error)
+            toast.error("Error", "Gagal memuat detail batch")
+            return
+        }
 
         // Fetch cutters
         try {
@@ -377,6 +387,12 @@ export default function BatchManagementPage() {
             return
         }
 
+        // Hitung total material yang akan diterima pemotong
+        const totalMaterialReceived = assignBatch.materialAllocations?.reduce(
+            (sum, allocation) => sum + Number(allocation.requestedQty),
+            0
+        ) || 0
+
         setAssigning(true)
         try {
             const response = await fetch(`/api/production-batches/${assignBatch.id}/assign-cutter`, {
@@ -387,6 +403,13 @@ export default function BatchManagementPage() {
                 body: JSON.stringify({
                     assignedToId: selectedCutterId,
                     notes: assignNotes,
+                    materialReceived: totalMaterialReceived,
+                    materialAllocations: assignBatch.materialAllocations?.map(allocation => ({
+                        materialId: allocation.materialId,
+                        materialName: allocation.materialName,
+                        quantity: allocation.requestedQty,
+                        unit: allocation.unit
+                    }))
                 }),
             })
 
@@ -751,7 +774,7 @@ export default function BatchManagementPage() {
 
                         {/* Target Quantity */}
                         <div className="space-y-2">
-                            <Label htmlFor="quantity">Target Quantity *</Label>
+                            <Label htmlFor="quantity">Target Quantity * <b>(Pcs)</b></Label>
                             <Input
                                 id="quantity"
                                 type="number"
@@ -764,41 +787,59 @@ export default function BatchManagementPage() {
 
                         {/* Material Allocations */}
                         {materialAllocations.length > 0 && (
-                            <div className="space-y-2">
-                                <Label>Alokasi Bahan Baku</Label>
-                                <div className="rounded-md border">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Material</TableHead>
-                                                <TableHead>Kebutuhan</TableHead>
-                                                <TableHead>Stok Tersedia</TableHead>
-                                                <TableHead>Status</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {materialAllocations.map((allocation) => (
-                                                <TableRow key={allocation.materialId}>
-                                                    <TableCell className="font-medium">
-                                                        {allocation.materialName}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {Number(allocation.requestedQty).toFixed(2)} {allocation.unit}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {Number(allocation.availableStock).toFixed(2)} {allocation.unit}
-                                                    </TableCell>
-                                                    <TableCell>
+                            <div className="space-y-3">
+                                <div>
+                                    <Label>Alokasi Bahan Baku (Input Manual)</Label>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Masukkan perkiraan kebutuhan bahan baku. Konversi dari roll ke pcs akan ditentukan oleh pemotong.
+                                    </p>
+                                </div>
+                                <div className="space-y-3">
+                                    {materialAllocations.map((allocation) => (
+                                        <div key={allocation.materialId} className="rounded-lg border p-4 space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="font-medium">{allocation.materialName}</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Stok tersedia: {Number(allocation.availableStock)} {allocation.unit}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`material-${allocation.materialId}`}>
+                                                    Perkiraan Kebutuhan ({allocation.unit})
+                                                </Label>
+                                                <Input
+                                                    id={`material-${allocation.materialId}`}
+                                                    type="number"
+                                                    min="1"
+                                                    step="1"
+                                                    placeholder={`Masukkan jumlah ${allocation.unit}`}
+                                                    value={allocation.requestedQty || ""}
+                                                    onChange={(e) => handleMaterialQuantityChange(allocation.materialId, e.target.value)}
+                                                />
+                                                {allocation.requestedQty > 0 && (
+                                                    <div className="flex items-center gap-2">
                                                         {Number(allocation.availableStock) >= Number(allocation.requestedQty) ? (
-                                                            <Badge className="bg-green-500">Cukup</Badge>
+                                                            <>
+                                                                <Badge className="bg-green-500">Stok Cukup</Badge>
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    Sisa: {Number(allocation.availableStock) - Number(allocation.requestedQty)} {allocation.unit}
+                                                                </span>
+                                                            </>
                                                         ) : (
-                                                            <Badge variant="destructive">Kurang</Badge>
+                                                            <>
+                                                                <Badge variant="destructive">Stok Kurang</Badge>
+                                                                <span className="text-sm text-muted-foreground">
+                                                                    Kurang: {Number(allocation.requestedQty) - Number(allocation.availableStock)} {allocation.unit}
+                                                                </span>
+                                                            </>
                                                         )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -882,9 +923,9 @@ export default function BatchManagementPage() {
                                             </TableHeader>
                                             <TableBody>
                                                 {selectedBatch.materialAllocations.map((allocation) => {
-                                                    const available = allocation.material.currentStock || 0
-                                                    const needed = allocation.requestedQty
-                                                    const sufficient = Number(available) >= Number(needed)
+                                                    const available = Number(allocation.material.currentStock) || 0
+                                                    const needed = Number(allocation.requestedQty)
+                                                    const sufficient = available >= needed
 
                                                     return (
                                                         <TableRow key={allocation.materialId}>
@@ -897,10 +938,10 @@ export default function BatchManagementPage() {
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell className="text-right">
-                                                                {Number(needed).toFixed(2)} {allocation.material.unit}
+                                                                {needed} {allocation.material.unit}
                                                             </TableCell>
                                                             <TableCell className="text-right">
-                                                                {Number(available).toFixed(2)} {allocation.material.unit}
+                                                                {available} {allocation.material.unit}
                                                             </TableCell>
                                                             <TableCell className="text-center">
                                                                 {sufficient ? (
@@ -1013,6 +1054,42 @@ export default function BatchManagementPage() {
                                     <Badge>{getStatusLabel(assignBatch.status)}</Badge>
                                 </div>
                             </div>
+
+                            {/* Material yang Sudah Dialokasikan */}
+                            {assignBatch.materialAllocations && assignBatch.materialAllocations.length > 0 && (
+                                <div className="space-y-2">
+                                    <Label>Bahan Baku untuk Pemotongan</Label>
+                                    <p className="text-sm text-muted-foreground">
+                                        Material yang sudah dialokasikan dan siap diteruskan ke pemotong
+                                    </p>
+                                    <div className="rounded-md border">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead>Material</TableHead>
+                                                    <TableHead className="text-right">Jumlah</TableHead>
+                                                    <TableHead>Satuan</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {assignBatch.materialAllocations.map((allocation) => (
+                                                    <TableRow key={allocation.materialId}>
+                                                        <TableCell className="font-medium">
+                                                            {allocation.material.name}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            {Number(allocation.requestedQty)}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {allocation.material.unit}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Cutter Selection */}
                             <div className="space-y-2">
@@ -1778,7 +1855,7 @@ export default function BatchManagementPage() {
                                                         className="font-mono text-sm font-medium cursor-pointer hover:text-primary hover:underline"
                                                         onClick={() => {
                                                             setSelectedBatch(batch)
-                                                            setShowConfirmDialog(true)
+                                                            openDetailDialog(batch)
                                                         }}
                                                     >
                                                         {batch.batchSku}
@@ -1801,7 +1878,7 @@ export default function BatchManagementPage() {
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            {["PENDING", "MATERIAL_REQUESTED"].includes(batch.status) && (
+                                                            {["PENDING"].includes(batch.status) && (
                                                                 <Button
                                                                     size="sm"
                                                                     onClick={() => openConfirmDialog(batch)}

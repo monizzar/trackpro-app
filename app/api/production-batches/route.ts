@@ -58,9 +58,23 @@ export async function GET(request: Request) {
       },
     });
 
+    // Convert Decimal fields to number for JSON serialization
+    const serializedBatches = batches.map((batch) => ({
+      ...batch,
+      targetQuantity: Number(batch.targetQuantity),
+      actualQuantity: batch.actualQuantity
+        ? Number(batch.actualQuantity)
+        : null,
+      rejectQuantity: Number(batch.rejectQuantity),
+      materialAllocations: batch.materialAllocations.map((allocation) => ({
+        ...allocation,
+        requestedQty: Number(allocation.requestedQty),
+      })),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: batches,
+      data: serializedBatches,
     });
   } catch (error) {
     console.error("Error fetching production batches:", error);

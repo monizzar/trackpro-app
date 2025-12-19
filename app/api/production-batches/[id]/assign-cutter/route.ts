@@ -11,7 +11,7 @@ export async function POST(
     const params = await context.params;
     const { id: batchId } = params;
     const body = await request.json();
-    const { assignedToId, notes } = body;
+    const { assignedToId, notes, materialReceived, materialAllocations } = body;
 
     // Check if batch exists and is in correct status
     const batch = await prisma.productionBatch.findUnique({
@@ -77,7 +77,7 @@ export async function POST(
         data: {
           batchId,
           assignedToId,
-          materialReceived: 0, // Will be updated when materials are received
+          materialReceived: materialReceived || 0, // Set dari total material yang dialokasikan
           status: "PENDING",
           notes: notes || "",
         },
@@ -107,22 +107,41 @@ export async function POST(
         },
       });
 
+      // Build material details for timeline
+      let materialDetails = "";
+      if (materialAllocations && materialAllocations.length > 0) {
+        const materialList = materialAllocations
+          .map(
+            (m: any) =>
+              `${m.materialName}: ${Number(m.quantity).toFixed(2)} ${m.unit}`
+          )
+          .join(", ");
+        materialDetails = `. Material yang diterima: ${materialList}`;
+      }
+
       // Create timeline entry
       await tx.batchTimeline.create({
         data: {
           batchId,
           event: "ASSIGNED_TO_CUTTER",
-          details: `Batch di-assign ke ${cutter.name} untuk proses pemotongan oleh ${session.user.name}`,
+          details: `Batch di-assign ke ${cutter.name} untuk proses pemotongan oleh ${session.user.name}${materialDetails}`,
         },
       });
 
       // Create notification for cutter
+      let notificationMessage = `Anda mendapat task pemotongan untuk batch ${batch.batchSku} - ${batch.product.name}. Target: ${batch.targetQuantity} pcs`;
+      if (materialReceived && materialReceived > 0) {
+        notificationMessage += `. Material yang diterima: ${Number(
+          materialReceived
+        ).toFixed(2)} unit`;
+      }
+
       await tx.notification.create({
         data: {
           userId: assignedToId,
           type: "BATCH_ASSIGNMENT",
           title: "Task Pemotongan Baru",
-          message: `Anda mendapat task pemotongan untuk batch ${batch.batchSku} - ${batch.product.name}. Target: ${batch.targetQuantity} pcs`,
+          message: notificationMessage,
           isRead: false,
         },
       });

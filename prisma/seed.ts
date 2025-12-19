@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 const connectionString =
   process.env.DATABASE_URL ||
-  "postgresql://zar:iop@localhost:5432/trackpro-db?schema=public";
+  "postgresql://postgres:iop@localhost:5432/trackpro-db?schema=public";
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
@@ -126,66 +126,6 @@ async function main() {
     },
   });
 
-  const kancing = await prisma.material.upsert({
-    where: { code: "MAT-KANCING-001" },
-    update: {},
-    create: {
-      code: "MAT-KANCING-001",
-      name: "Kancing Kayu",
-      description: "Kancing kayu untuk gamis",
-      unit: "PIECE",
-      currentStock: 1000,
-      minimumStock: 200,
-      price: 1000,
-      createdById: owner.id,
-    },
-  });
-
-  const kainDrill = await prisma.material.upsert({
-    where: { code: "MAT-KAIN-002" },
-    update: {},
-    create: {
-      code: "MAT-KAIN-002",
-      name: "Kain Drill",
-      description: "Kain drill berkualitas untuk celana formal",
-      unit: "METER",
-      currentStock: 0,
-      minimumStock: 50,
-      price: 60000,
-      createdById: owner.id,
-    },
-  });
-
-  const label = await prisma.material.upsert({
-    where: { code: "MAT-LABEL-001" },
-    update: {},
-    create: {
-      code: "MAT-LABEL-001",
-      name: "Label Brand",
-      description: "Label merek untuk produk",
-      unit: "PIECE",
-      currentStock: 0,
-      minimumStock: 100,
-      price: 2000,
-      createdById: owner.id,
-    },
-  });
-
-  const resleting = await prisma.material.upsert({
-    where: { code: "MAT-RESLETING-001" },
-    update: {},
-    create: {
-      code: "MAT-RESLETING-001",
-      name: "Resleting Celana",
-      description: "Resleting metal untuk celana",
-      unit: "PIECE",
-      currentStock: 0,
-      minimumStock: 50,
-      price: 5000,
-      createdById: owner.id,
-    },
-  });
-
   console.log("✅ Created sample materials");
 
   // Create sample products
@@ -260,13 +200,13 @@ async function main() {
     where: {
       productId_materialId: {
         productId: gamisPremium.id,
-        materialId: kancing.id,
+        materialId: kainKatun.id,
       },
     },
     update: {},
     create: {
       productId: gamisPremium.id,
-      materialId: kancing.id,
+      materialId: kainKatun.id,
       quantity: 10,
       unit: "PIECE",
     },

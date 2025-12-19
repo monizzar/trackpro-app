@@ -92,9 +92,22 @@ export async function GET(
       );
     }
 
+    // Convert Decimal to number for JSON serialization
+    const serializedBatch = {
+      ...batch,
+      materialAllocations: batch.materialAllocations.map((allocation) => ({
+        ...allocation,
+        requestedQty: Number(allocation.requestedQty),
+        material: {
+          ...allocation.material,
+          currentStock: Number(allocation.material.currentStock),
+        },
+      })),
+    };
+
     return NextResponse.json({
       success: true,
-      data: batch,
+      data: serializedBatch,
     });
   } catch (error) {
     console.error("Error fetching production batch:", error);

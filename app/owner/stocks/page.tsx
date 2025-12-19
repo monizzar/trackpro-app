@@ -153,6 +153,7 @@ export default function StocksPage() {
         type: "IN" as "IN" | "OUT" | "ADJUSTMENT" | "RETURN",
         quantity: 0,
         notes: "",
+        unit: "ROLL" as string,
     })
 
     useEffect(() => {
@@ -241,6 +242,7 @@ export default function StocksPage() {
                     type: "IN",
                     quantity: 0,
                     notes: "",
+                    unit: "",
                 })
                 toast.success("Transaksi Berhasil", `${transactionForm.type === 'IN' ? 'Penambahan' : 'Pengurangan'} stok berhasil dicatat`);
             } else {
@@ -555,22 +557,50 @@ export default function StocksPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="quantity">Quantity</Label>
-                                    <Input
-                                        id="quantity"
-                                        type="number"
-                                        step="0.001"
-                                        min="0.001"
-                                        placeholder="Enter quantity"
-                                        value={transactionForm.quantity || ""}
-                                        onChange={(e) =>
-                                            setTransactionForm({
-                                                ...transactionForm,
-                                                quantity: parseFloat(e.target.value) || 0,
-                                            })
-                                        }
-                                        required
-                                    />
+                                    <div className="flex gap-4">
+                                        <div className="flex-1">
+                                            <Label htmlFor="quantity">Quantity</Label>
+                                            <Input
+                                                id="quantity"
+                                                type="number"
+                                                step="1"
+                                                min="1"
+                                                placeholder="Enter quantity"
+                                                value={transactionForm.quantity || ""}
+                                                onChange={(e) =>
+                                                    setTransactionForm({
+                                                        ...transactionForm,
+                                                        quantity: parseFloat(e.target.value) || 0,
+                                                    })
+                                                }
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex-1">
+                                            <Label htmlFor="unit">Unit</Label>
+                                            <Select
+                                                id="unit"
+                                                value={transactionForm.unit}
+                                                onChange={(e) =>
+                                                    setTransactionForm({
+                                                        ...transactionForm,
+                                                        unit: e.target.value,
+                                                    })
+                                                }
+                                                disabled
+                                                required
+                                            >
+                                                <option value="">Select Unit...</option>
+                                                <option value="METER">METER</option>
+                                                <option value="ROLL">ROLL</option>
+                                                <option value="PIECE">PIECE</option>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+
                                 </div>
 
                                 <div className="space-y-2">
