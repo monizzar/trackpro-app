@@ -1,4 +1,5 @@
 import { FinishingSidebar } from "@/components/layout/finishing-sidebar"
+import { FinishingBottomNav } from "@/components/layout/finishing-bottom-nav"
 import { requireRole } from "@/lib/auth-helpers"
 
 export default async function FinishingLayout({
@@ -10,8 +11,18 @@ export default async function FinishingLayout({
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <FinishingSidebar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            {/* Desktop Sidebar */}
+            <div className="hidden md:block">
+                <FinishingSidebar />
+            </div>
+
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="md:hidden">
+                <FinishingBottomNav />
+            </div>
         </div>
     )
 }

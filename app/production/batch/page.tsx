@@ -730,15 +730,15 @@ export default function BatchManagementPage() {
     }
 
     return (
-        <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between">
+        <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+            <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Manajemen Batch</h2>
-                    <p className="text-muted-foreground">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Manajemen Batch</h2>
+                    <p className="text-muted-foreground text-sm md:text-base">
                         Kelola batch produksi dan penjadwalan
                     </p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)}>
+                <Button onClick={() => setShowCreateDialog(true)} className="w-full sm:w-auto">
                     <Plus className="h-4 w-4 mr-2" />
                     Buat Batch Baru
                 </Button>
@@ -1025,14 +1025,13 @@ export default function BatchManagementPage() {
 
             {/* Assign to Cutter Dialog */}
             <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl" >
                     <DialogHeader>
                         <DialogTitle>Assign ke Pemotong</DialogTitle>
                         <DialogDescription>
                             Pilih pemotong untuk mengerjakan batch ini
                         </DialogDescription>
                     </DialogHeader>
-
                     {assignBatch && (
                         <div className="space-y-4 py-4">
                             {/* Batch Info */}
@@ -1128,7 +1127,6 @@ export default function BatchManagementPage() {
                             </Alert>
                         </div>
                     )}
-
                     <DialogFooter>
                         <Button
                             variant="outline"
@@ -1806,14 +1804,14 @@ export default function BatchManagementPage() {
             </Dialog>
 
             <Tabs defaultValue="active" className="space-y-4">
-                <TabsList>
+                <TabsList className="w-full md:w-auto">
                     <TabsTrigger value="active">Batch Aktif</TabsTrigger>
                     <TabsTrigger value="completed">Selesai</TabsTrigger>
-                    <TabsTrigger value="all">Semua Batch</TabsTrigger>
+                    <TabsTrigger value="all">Semua</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="active" className="space-y-4">
-                    <Card>
+                    <Card className="bg-accent/5">
                         <CardHeader>
                             <CardTitle>Batch Produksi Aktif</CardTitle>
                             <CardDescription>Batch yang sedang dalam proses produksi</CardDescription>
@@ -1828,7 +1826,8 @@ export default function BatchManagementPage() {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="rounded-md border">
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block rounded-md border">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -1862,7 +1861,6 @@ export default function BatchManagementPage() {
                                                     </TableCell>
                                                     <TableCell
                                                         className="cursor-pointer hover:text-primary hover:underline"
-                                                    // onClick={() => openDetailDialog(batch)}
                                                     >
                                                         {batch.product.name}
                                                     </TableCell>
@@ -1951,6 +1949,125 @@ export default function BatchManagementPage() {
                                         )}
                                     </TableBody>
                                 </Table>
+                            </div>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4">
+                                {filteredBatches(isActive).length === 0 ? (
+                                    <div className="text-center text-muted-foreground py-8">
+                                        Tidak ada batch aktif
+                                    </div>
+                                ) : (
+                                    filteredBatches(isActive).map((batch) => (
+                                        <Card key={batch.id} className="overflow-hidden">
+                                            <CardHeader className="pb-3">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="space-y-1">
+                                                        <CardTitle
+                                                            className="text-base font-mono cursor-pointer hover:text-primary"
+                                                            onClick={() => openDetailDialog(batch)}
+                                                        >
+                                                            {batch.batchSku}
+                                                        </CardTitle>
+                                                        <CardDescription className="text-sm">
+                                                            {batch.product.name}
+                                                        </CardDescription>
+                                                    </div>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => router.push(`/production/batch/${batch.id}`)}
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </CardHeader>
+                                            <CardContent className="space-y-3">
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    <div>
+                                                        <p className="text-muted-foreground text-xs">Target</p>
+                                                        <p className="font-medium">{batch.targetQuantity} pcs</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-muted-foreground text-xs">Tanggal</p>
+                                                        <p className="font-medium">{formatDate(batch.createdAt)}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    <Badge variant="secondary">{getCurrentStage(batch.status)}</Badge>
+                                                    <Badge>{getStatusLabel(batch.status)}</Badge>
+                                                </div>
+                                                <div className="flex flex-col gap-2 pt-2">
+                                                    {["PENDING"].includes(batch.status) && (
+                                                        <Button
+                                                            size="sm"
+                                                            className="w-full"
+                                                            onClick={() => openConfirmDialog(batch)}
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                                            Konfirmasi
+                                                        </Button>
+                                                    )}
+                                                    {batch.status === "MATERIAL_ALLOCATED" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="w-full"
+                                                            onClick={() => openAssignDialog(batch)}
+                                                        >
+                                                            <UserPlus className="h-4 w-4 mr-2" />
+                                                            Assign Pemotong
+                                                        </Button>
+                                                    )}
+                                                    {batch.status === "CUTTING_COMPLETED" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="w-full"
+                                                            onClick={() => openVerifyDialog(batch)}
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                                            Verifikasi Potongan
+                                                        </Button>
+                                                    )}
+                                                    {batch.status === "CUTTING_VERIFIED" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="w-full"
+                                                            onClick={() => openAssignSewerDialog(batch)}
+                                                        >
+                                                            <UserPlus className="h-4 w-4 mr-2" />
+                                                            Assign Penjahit
+                                                        </Button>
+                                                    )}
+                                                    {batch.status === "SEWING_COMPLETED" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="w-full"
+                                                            onClick={() => openVerifySewingDialog(batch)}
+                                                        >
+                                                            <CheckCircle className="h-4 w-4 mr-2" />
+                                                            Verifikasi Jahitan
+                                                        </Button>
+                                                    )}
+                                                    {batch.status === "SEWING_VERIFIED" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="default"
+                                                            className="w-full"
+                                                            onClick={() => openAssignFinisherDialog(batch)}
+                                                        >
+                                                            <UserPlus className="h-4 w-4 mr-2" />
+                                                            Assign Finisher
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))
+                                )}
                             </div>
                         </CardContent>
                     </Card>

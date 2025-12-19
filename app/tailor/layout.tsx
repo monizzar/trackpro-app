@@ -1,4 +1,5 @@
 import { TailorSidebar } from "@/components/layout/tailor-sidebar"
+import { TailorBottomNav } from "@/components/layout/tailor-bottom-nav"
 import { requireRole } from "@/lib/auth-helpers"
 
 export default async function TailorLayout({
@@ -10,8 +11,18 @@ export default async function TailorLayout({
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <TailorSidebar />
-            <main className="flex-1 overflow-y-auto">{children}</main>
+            {/* Desktop Sidebar */}
+            <div className="hidden md:block">
+                <TailorSidebar />
+            </div>
+
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
+
+            {/* Mobile Bottom Navigation */}
+            <div className="md:hidden">
+                <TailorBottomNav />
+            </div>
         </div>
     )
 }
